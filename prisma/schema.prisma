@@ -1,0 +1,333 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+enum EDapemStatus {
+  DRAFT
+  PROCCESS
+  APPROVED
+  PAID_OFF
+}
+
+enum ESubmissionStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum EMarriageStatus {
+  KAWIN
+  BELUM_KAWIN
+  JANDA
+  DUDA
+}
+
+enum EDocStatus {
+  UNIT
+  DELIVERY
+  CENTER
+  PARTNER
+}
+
+model Role {
+  id         String @id @default(uuid())
+  name       String @unique
+  permission String @db.Text
+
+  status     Boolean  @default(true)
+  created_at DateTime @default(now())
+  updated_at DateTime @default(now())
+  User       User[]
+}
+
+model Sumdan {
+  id          String  @id @default(uuid())
+  name        String
+  code        String
+  description String? @db.Text
+  logo        String?
+  address     String? @db.Text
+  phone       String?
+  tbo         Int     @default(3)
+  rounded     Int     @default(1000)
+  limit       Int     @default(0)
+  c_margin    Float
+  c_adm       Float
+  c_gov       Int
+  c_stamps    Int
+  c_account   Int
+  dsr         Float
+
+  status           Boolean            @default(true)
+  created_at       DateTime           @default(now())
+  updated_at       DateTime           @default(now())
+  User             User[]
+  ProdukPembiayaan ProdukPembiayaan[]
+}
+
+model Area {
+  id         String   @id @default(uuid())
+  name       String
+  status     Boolean  @default(true)
+  created_at DateTime @default(now())
+  updated_at DateTime @default(now())
+  Cabang     Cabang[]
+}
+
+model Cabang {
+  id      String  @id @default(uuid())
+  name    String
+  address String? @db.Text
+  phone   String?
+  Area    Area    @relation(fields: [areaId], references: [id])
+
+  status     Boolean  @default(true)
+  created_at DateTime @default(now())
+  updated_at DateTime @default(now())
+  areaId     String
+  User       User[]
+}
+
+model User {
+  id       String  @id @default(uuid())
+  nip      String?
+  fullname String
+  username String  @unique
+  password String
+  email    String?
+  phone    String?
+  target   Int     @default(0)
+  position String?
+
+  status       Boolean  @default(true)
+  created_at   DateTime @default(now())
+  updated_at   DateTime @default(now())
+  Role         Role     @relation(fields: [roleId], references: [id])
+  cabang       Cabang?  @relation(fields: [cabangId], references: [id])
+  Sumdan       Sumdan   @relation(fields: [sumdanId], references: [id])
+  roleId       String
+  cabangId     String
+  sumdanId     String?
+  CreateDDapem Dapem[]  @relation("CreateDapemRelation")
+  AODapem      Dapem[]  @relation("AODapemRelation")
+}
+
+model ProdukPembiayaan {
+  id          String @id @default(uuid())
+  name        String
+  c_margin    Float
+  c_adm       Float
+  c_insurance Float
+  max_tenor   Int
+  max_plafond Int
+  min_age     Int
+  max_age     Int
+  max_paid    Int
+
+  status     Boolean  @default(true)
+  created_at DateTime @default(now())
+  updated_at DateTime @default(now())
+  Sumdan     Sumdan   @relation(fields: [sumdanId], references: [id])
+  sumdanId   String
+  Dapem      Dapem[]
+}
+
+model JenisPembiayaan {
+  id       String @id
+  name     String
+  c_blokir Int
+  c_mutasi Int    @default(0)
+
+  status_takeover Boolean  @default(false)
+  status_mutasi   Boolean  @default(false)
+  status          Boolean  @default(true)
+  created_at      DateTime @default(now())
+  updated_at      DateTime @default(now())
+  Dapem           Dapem[]
+}
+
+model Debitur {
+  nopen      String   @unique
+  salary     Int
+  fullname   String
+  nik        String?
+  birthdate  DateTime
+  birthplace String?
+  religion   String?
+  address    String
+  ward       String?
+  district   String?
+  city       String?
+  province   String?
+  pos_code   String?
+  npwp       String?
+  phone      String?
+  education  String?
+  gender     String?
+
+  no_skep        String
+  name_skep      String?
+  date_skep      String
+  tmt_skep       String
+  rank_skep      String?
+  publisher_skep String?
+  group_skep     String?
+  soul_code      Int?
+  job_year       Int?
+
+  pay_office     String
+  start_flagging String?
+  end_flagging   String?
+
+  mother_name    String?
+  account_name   String?
+  account_number String?
+  Dapem          Dapem[]
+}
+
+model Dapem {
+  id              String @id @default(uuid())
+  salary          Int
+  tenor           Int
+  plafond         Int
+  c_margin        Float
+  c_margin_sumdan Float
+  c_adm           Float
+  c_adm_sumdan    Float
+  c_insurance     Float
+  c_gov           Int
+  c_stamp         Int
+  c_account       Int
+  c_mutasi        Int
+  c_blokir        Int
+  c_takeover      Int
+  tbo             Int
+  rounded         Int
+
+  address     String
+  ward        String
+  district    String
+  city        String
+  province    String?
+  pos_code    String?
+  geolocation String?
+
+  house_status        String?
+  house_year          String?
+  job                 String?
+  job_address         String?
+  business            String?
+  marriage_status     EMarriageStatus @default(BELUM_KAWIN)
+  marriage_name       String?
+  marriage_nik        String?
+  marriage_birthdate  String?
+  marriage_birthplace String?
+  marriage_job        String?
+
+  f_name    String?
+  f_relate  String?
+  f_phone   String?
+  f_address String?
+
+  dropping_status  EDapemStatus       @default(DRAFT)
+  verif_status     ESubmissionStatus?
+  verif_desc       String?            @db.TEXT
+  slik_status      ESubmissionStatus?
+  slik_desc        String?            @db.TEXT
+  approv_status    ESubmissionStatus?
+  approv_desc      String?            @db.TEXT
+  takeover_status  EDapemStatus       @default(DRAFT)
+  takeover_desc    String?            @db.TEXT
+  mutasi_status    EDapemStatus       @default(DRAFT)
+  mutasi_desc      String?            @db.TEXT
+  cash_status      EDapemStatus       @default(DRAFT)
+  cash_desc        String?            @db.TEXT
+  document_status  EDapemStatus       @default(DRAFT)
+  document_desc    String?            @db.TEXT
+  guarantee_status EDapemStatus       @default(DRAFT)
+  guarantee_desc   String?            @db.TEXT
+
+  used_for      String
+  no_contract   String
+  date_contract DateTime?
+
+  file_slik       String?
+  file_submission String?
+  video_interview String?
+  video_insurance String?
+  file_contract   String?
+
+  status           Boolean          @default(true)
+  created_at       DateTime         @default(now())
+  updated_at       DateTime         @default(now())
+  Debitur          Debitur          @relation(fields: [nopen], references: [nopen])
+  ProdukPembiayaan ProdukPembiayaan @relation(fields: [produkPembiayaanId], references: [id])
+  JenisPembiayaan  JenisPembiayaan  @relation(fields: [jenisPembiayaanId], references: [id])
+  CreatedBy        User             @relation("CreateDapemRelation", fields: [createdById], references: [id])
+  AO               User             @relation("AODapemRelation", fields: [aoId], references: [id])
+  Dropping         Dropping?        @relation(fields: [droppingId], references: [id])
+  Berkas           Berkas?          @relation(fields: [berkasId], references: [id])
+  Jaminan          Jaminan?         @relation(fields: [jaminanId], references: [id])
+
+  nopen              String
+  produkPembiayaanId String
+  jenisPembiayaanId  String
+  createdById        String
+  aoId               String
+  droppingId         String?
+  berkasId           String?
+  jaminanId          String?
+}
+
+model Dropping {
+  id         String   @id @default(uuid())
+  file_sub   String?
+  file_proof String?  @db.TEXT
+  status     Boolean
+  process_at DateTime
+  created_at DateTime
+  Dapem      Dapem[]
+}
+
+model Berkas {
+  id         String   @id @default(uuid())
+  file_sub   String?
+  file_proof String?
+  status     Boolean
+  process_at DateTime
+  created_at DateTime
+  Dapem      Dapem[]
+}
+
+model Jaminan {
+  id         String   @id @default(uuid())
+  file_sub   String?
+  file_proof String?
+  status     Boolean
+  process_at DateTime
+  created_at DateTime
+  Dapem      Dapem[]
+}
+
+model Pelunasan {
+  id             String  @id @default(uuid())
+  nominal        Int
+  nominal_sumdan Int
+  desc           String?
+  file_sub       String?
+
+  status_paid Boolean  @default(false)
+  process_at  DateTime
+  created_at  DateTime
+}
