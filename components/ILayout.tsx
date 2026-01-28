@@ -9,10 +9,8 @@ import {
 import { Badge, Button, Dropdown, Layout, Menu, Modal } from "antd";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-// import { useUser } from "./UserContext";
-// import { listMenu } from "./IMenu";
-// import { MenuPermission } from "./Services";
-import { listMenuUI } from "./IMenu";
+import { useUser } from "./UserContext";
+import { listMenuUI, MenuPermission } from "./IMenu";
 
 const { Header, Content, Sider } = Layout;
 
@@ -21,11 +19,7 @@ export default function ILayout({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = useState(false);
   const [collapsed, setCollapsed] = useState(false);
   const router = useRouter();
-  //   const user = useUser();
-  //   const [notif, setNotif] = useState({
-  //     skp: [],
-  //     flagging: [],
-  //   });
+  const user = useUser();
 
   const handleLogout = async () => {
     setLoading(true);
@@ -36,19 +30,6 @@ export default function ILayout({ children }: { children: React.ReactNode }) {
       });
     setLoading(false);
   };
-
-  //   useEffect(() => {
-  //     (async () => {
-  //       await fetch("/api/intern/notif")
-  //         .then((res) => res.json())
-  //         .then((res) => setNotif(res));
-  //     })();
-  //     setInterval(async () => {
-  //       await fetch("/api/intern/notif")
-  //         .then((res) => res.json())
-  //         .then((res) => setNotif(res));
-  //     }, 60 * 1000 * 5);
-  //   }, []);
 
   return (
     <Layout style={{ minHeight: "100vh" }}>
@@ -102,40 +83,28 @@ export default function ILayout({ children }: { children: React.ReactNode }) {
             ></Button>
           </div>
         )}
-        {/* {user && ( */}
-        <Menu
-          theme="dark"
-          mode="inline"
-          inlineCollapsed={collapsed}
-          style={{
-            width: collapsed
-              ? window && window.innerWidth > 600
-                ? 80
-                : 0
-              : 250,
-          }}
-          // items={MenuPermission(
-          //   listMenu,
-          //   JSON.parse(user.Role.permission || "").map((p: any) => p.path)
-          // )}
-          items={listMenuUI.map((m) => ({
-            label: m.label,
-            key: m.key,
-            icon: m.icon,
-            children:
-              m.children &&
-              m.children.map((mc) => ({
-                label: mc.label,
-                key: mc.key,
-                icon: mc.icon,
-              })),
-          }))}
-          onClick={(e) => router.push(e.key)}
-        />
-        {/* )} */}
+        {user && (
+          <Menu
+            theme="dark"
+            mode="inline"
+            inlineCollapsed={collapsed}
+            style={{
+              width: collapsed
+                ? window && window.innerWidth > 600
+                  ? 80
+                  : 0
+                : 250,
+            }}
+            items={MenuPermission(
+              listMenuUI,
+              JSON.parse(user.Role.permission || "").map((p: any) => p.path)
+            )}
+            onClick={(e) => router.push(e.key)}
+          />
+        )}
         {!collapsed && (
           <div className="text-xs italic text-white opacity-50 ms-4 mt-2">
-            <div>© Created 2026 by POTENSI</div>
+            <div>© Created 2026 by Syrel Teknology</div>
           </div>
         )}
       </Sider>

@@ -1,7 +1,12 @@
 import {
+  BankOutlined,
+  BorderOuterOutlined,
+  BranchesOutlined,
+  CalculatorOutlined,
   DashboardOutlined,
   KeyOutlined,
   MoneyCollectOutlined,
+  ReadOutlined,
   RobotOutlined,
   SettingOutlined,
   TableOutlined,
@@ -9,7 +14,7 @@ import {
   VerifiedOutlined,
 } from "@ant-design/icons";
 
-interface IMenu {
+export interface IMenu {
   label: string | React.ReactNode;
   key: string;
   icon: string | React.ReactNode;
@@ -27,21 +32,15 @@ export const listMenuUI: IMenuType[] = [
     needaccess: false,
   },
   {
-    label: "Rekap Tagihan",
-    key: "/rekap",
-    icon: <TableOutlined />,
+    label: "Simulasi Pembiayaan",
+    key: "/simulasi",
+    icon: <CalculatorOutlined />,
     needaccess: true,
   },
   {
-    label: "Tagihan",
-    key: "/tagihan",
-    icon: <MoneyCollectOutlined />,
-    needaccess: true,
-  },
-  {
-    label: "Manajemen User",
-    key: "/users",
-    icon: <TeamOutlined />,
+    label: "Monitoring Pembiayaan",
+    key: "/monitoring",
+    icon: <ReadOutlined />,
     needaccess: true,
   },
   {
@@ -63,25 +62,44 @@ export const listMenuUI: IMenuType[] = [
         needaccess: true,
       },
       {
+        label: "Manajemen User",
+        key: "/master/users",
+        icon: <TeamOutlined />,
+        needaccess: true,
+      },
+      {
+        label: "Manajemen Unit",
+        key: "/master/area",
+        icon: <BranchesOutlined />,
+        needaccess: true,
+      },
+      {
         label: "Manajemen Mitra",
         key: "/master/mitra",
-        icon: <VerifiedOutlined />,
+        icon: <BankOutlined />,
+        needaccess: true,
+      },
+      {
+        label: "Jenis Pembiayaan",
+        key: "/master/jenis",
+        icon: <BorderOuterOutlined />,
         needaccess: true,
       },
     ],
   },
 ];
+
 export const listMenuServer: { key: string; needaccess: boolean }[] = [
   {
     key: "/dashboard",
     needaccess: false,
   },
   {
-    key: "/rekap",
+    key: "/simulasi",
     needaccess: true,
   },
   {
-    key: "/tagihan",
+    key: "/monitoring",
     needaccess: true,
   },
   {
@@ -101,4 +119,46 @@ export const listMenuServer: { key: string; needaccess: boolean }[] = [
     key: "/master/mitra",
     needaccess: true,
   },
+  {
+    key: "/master/user",
+    needaccess: true,
+  },
+  {
+    key: "/master/area",
+    needaccess: true,
+  },
+  {
+    key: "/master/jenis",
+    needaccess: true,
+  },
 ];
+
+export const MenuPermission = (
+  items: IMenuType[],
+  allowedKeys: string[],
+): any[] => {
+  return items
+    .map((item) => {
+      if (item.children && item.children.length > 0) {
+        const filteredChildren = MenuPermission(item.children, allowedKeys);
+        const { needaccess, ...c } = item;
+
+        if (filteredChildren.length > 0) {
+          return {
+            ...c,
+            children: filteredChildren,
+          };
+        }
+      }
+      const { needaccess, ...rt } = item;
+      const isAllowed = !item.needaccess
+        ? true
+        : allowedKeys.includes(item.key);
+      if (isAllowed) {
+        return rt;
+      }
+
+      return null;
+    })
+    .filter(Boolean) as any[];
+};

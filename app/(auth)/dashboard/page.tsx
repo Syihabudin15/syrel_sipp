@@ -14,9 +14,7 @@ export default function Page() {
         <Row gutter={[12, 12]}>
           <Col xs={24} sm={12}>
             <div className="bg-white p-3 rounded shadow">
-              <p className="font-bold text-lg">
-                Grafik Tagihan Tahun {new Date().getFullYear()}
-              </p>
+              <p className="font-bold text-lg">Grafik Pencairan 6 Bulan</p>
               <div className="h-64 rounded-lg flex items-center justify-center mt-2">
                 {/* <TagihanChart data={data.charts} /> */}
               </div>
@@ -24,9 +22,23 @@ export default function Page() {
           </Col>
           <Col xs={24} sm={12}>
             <div className="bg-white p-3 rounded shadow">
-              <p className="font-bold text-lg">
-                Status Debet Tagihan {new Date().getFullYear()}
-              </p>
+              <p className="font-bold text-lg">Total Status Pembiayaan</p>
+              <div className="h-64 rounded-lg flex items-center justify-center mt-2">
+                {/* <StatusDebetChart data={data.charts} /> */}
+              </div>
+            </div>
+          </Col>
+          <Col xs={24} sm={12}>
+            <div className="bg-white p-3 rounded shadow">
+              <p className="font-bold text-lg">Grafik Pembiayaan By Sumdan</p>
+              <div className="h-64 rounded-lg flex items-center justify-center mt-2">
+                {/* <StatusDebetChart data={data.charts} /> */}
+              </div>
+            </div>
+          </Col>
+          <Col xs={24} sm={12}>
+            <div className="bg-white p-3 rounded shadow">
+              <p className="font-bold text-lg">Grafik Pembiayaan By Produk</p>
               <div className="h-64 rounded-lg flex items-center justify-center mt-2">
                 {/* <StatusDebetChart data={data.charts} /> */}
               </div>

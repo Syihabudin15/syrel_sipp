@@ -1,6 +1,7 @@
 "use client";
 
 import { LoadingOutlined, LockOutlined, UserOutlined } from "@ant-design/icons";
+import { Input } from "antd";
 import moment from "moment";
 import { useState } from "react";
 
@@ -11,8 +12,7 @@ export default function Home() {
   const [loading, setLoading] = useState(false);
   const [err, setErr] = useState("");
 
-  const handleSubmit = async (e: any) => {
-    e.preventDefault();
+  const handleSubmit = async () => {
     setLoading(true);
     await fetch("/api/auth", {
       method: "POST",
@@ -46,7 +46,7 @@ export default function Home() {
         </div>
 
         {/* Login Form */}
-        <form onSubmit={(e) => handleSubmit(e)} className="space-y-6">
+        <div className="space-y-6">
           <div>
             <label
               htmlFor="username"
@@ -78,11 +78,10 @@ export default function Home() {
               Password
             </label>
             <div className="relative">
-              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <LockOutlined />
-              </div>
-              <input
-                type="password"
+              <Input.Password
+                prefix={<LockOutlined />}
+                size="large"
+                // type="password"
                 id="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
@@ -112,12 +111,12 @@ export default function Home() {
           </div>
           {err && <div className="italic text-red-500 text-xs">{err}</div>}
           <button
-            type="submit"
             className="w-full bg-linear-to-r from-blue-500 to-purple-600 text-white py-2 px-4 rounded-md hover:from-blue-600 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition duration-200 transform hover:scale-105 cursor-pointer"
+            onClick={() => handleSubmit()}
           >
             {loading ? <LoadingOutlined /> : ""} Masuk
           </button>
-        </form>
+        </div>
 
         {/* Footer */}
         <div className="mt-8 pt-6 border-t border-gray-200 text-center">

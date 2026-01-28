@@ -15,6 +15,8 @@ datasource db {
 
 enum EDapemStatus {
   DRAFT
+  CANCEL
+  PENDING
   PROCCESS
   APPROVED
   PAID_OFF
@@ -24,6 +26,11 @@ enum ESubmissionStatus {
   PENDING
   APPROVED
   REJECTED
+}
+
+enum EMarginType {
+  FLAT
+  ANUITAS
 }
 
 enum EMarriageStatus {
@@ -36,8 +43,14 @@ enum EMarriageStatus {
 enum EDocStatus {
   UNIT
   DELIVERY
-  CENTER
-  PARTNER
+  PUSAT
+  SUMDAN
+}
+
+enum ESettleStatus {
+  MENINGGAL
+  TOPUP
+  LEPAS
 }
 
 model Role {
@@ -114,8 +127,8 @@ model User {
   created_at   DateTime @default(now())
   updated_at   DateTime @default(now())
   Role         Role     @relation(fields: [roleId], references: [id])
-  cabang       Cabang?  @relation(fields: [cabangId], references: [id])
-  Sumdan       Sumdan   @relation(fields: [sumdanId], references: [id])
+  Cabang       Cabang   @relation(fields: [cabangId], references: [id])
+  Sumdan       Sumdan?  @relation(fields: [sumdanId], references: [id])
   roleId       String
   cabangId     String
   sumdanId     String?
@@ -124,7 +137,7 @@ model User {
 }
 
 model ProdukPembiayaan {
-  id          String @id @default(uuid())
+  id          String      @id @default(uuid())
   name        String
   c_margin    Float
   c_adm       Float
@@ -134,6 +147,7 @@ model ProdukPembiayaan {
   min_age     Int
   max_age     Int
   max_paid    Int
+  margin_type EMarginType
 
   status     Boolean  @default(true)
   created_at DateTime @default(now())
@@ -176,17 +190,17 @@ model Debitur {
   education  String?
   gender     String?
 
-  no_skep        String
+  no_skep        String?
   name_skep      String?
-  date_skep      String
-  tmt_skep       String
+  date_skep      DateTime?
+  tmt_skep       DateTime?
   rank_skep      String?
   publisher_skep String?
   group_skep     String?
   soul_code      Int?
   job_year       Int?
 
-  pay_office     String
+  pay_office     String?
   start_flagging String?
   end_flagging   String?
 
@@ -197,8 +211,7 @@ model Debitur {
 }
 
 model Dapem {
-  id              String @id @default(uuid())
-  salary          Int
+  id              String      @id @default(uuid())
   tenor           Int
   plafond         Int
   c_margin        Float
@@ -214,7 +227,14 @@ model Dapem {
   c_takeover      Int
   tbo             Int
   rounded         Int
+  margin_type     EMarginType
 
+  takeover_from String?
+  takeover_date DateTime?
+  mutasi_from   String?
+  mutasi_to     String?
+
+  dom_status  Boolean
   address     String
   ward        String
   district    String
@@ -223,17 +243,17 @@ model Dapem {
   pos_code    String?
   geolocation String?
 
-  house_status        String?
-  house_year          String?
-  job                 String?
-  job_address         String?
-  business            String?
-  marriage_status     EMarriageStatus @default(BELUM_KAWIN)
-  marriage_name       String?
-  marriage_nik        String?
-  marriage_birthdate  String?
-  marriage_birthplace String?
-  marriage_job        String?
+  house_status    String?
+  house_year      String?
+  job             String?
+  job_address     String?
+  business        String?
+  marriage_status EMarriageStatus @default(BELUM_KAWIN)
+  aw_name         String?
+  aw_nik          String?
+  aw_birthdate    DateTime?
+  aw_birthplace   String?
+  aw_relate       String?
 
   f_name    String?
   f_relate  String?
@@ -242,21 +262,21 @@ model Dapem {
 
   dropping_status  EDapemStatus       @default(DRAFT)
   verif_status     ESubmissionStatus?
-  verif_desc       String?            @db.TEXT
+  verif_desc       String?            @db.Text
   slik_status      ESubmissionStatus?
-  slik_desc        String?            @db.TEXT
+  slik_desc        String?            @db.Text
   approv_status    ESubmissionStatus?
-  approv_desc      String?            @db.TEXT
+  approv_desc      String?            @db.Text
   takeover_status  EDapemStatus       @default(DRAFT)
-  takeover_desc    String?            @db.TEXT
+  takeover_desc    String?            @db.Text
   mutasi_status    EDapemStatus       @default(DRAFT)
-  mutasi_desc      String?            @db.TEXT
+  mutasi_desc      String?            @db.Text
   cash_status      EDapemStatus       @default(DRAFT)
-  cash_desc        String?            @db.TEXT
-  document_status  EDapemStatus       @default(DRAFT)
-  document_desc    String?            @db.TEXT
-  guarantee_status EDapemStatus       @default(DRAFT)
-  guarantee_desc   String?            @db.TEXT
+  cash_desc        String?            @db.Text
+  document_status  EDocStatus         @default(UNIT)
+  document_desc    String?            @db.Text
+  guarantee_status EDocStatus         @default(UNIT)
+  guarantee_desc   String?            @db.Text
 
   used_for      String
   no_contract   String
@@ -288,12 +308,13 @@ model Dapem {
   droppingId         String?
   berkasId           String?
   jaminanId          String?
+  Angsuran           Angsuran[]
 }
 
 model Dropping {
   id         String   @id @default(uuid())
   file_sub   String?
-  file_proof String?  @db.TEXT
+  file_proof String?  @db.Text
   status     Boolean
   process_at DateTime
   created_at DateTime
@@ -301,33 +322,46 @@ model Dropping {
 }
 
 model Berkas {
-  id         String   @id @default(uuid())
+  id         String     @id @default(uuid())
   file_sub   String?
   file_proof String?
-  status     Boolean
+  status     EDocStatus
   process_at DateTime
   created_at DateTime
   Dapem      Dapem[]
 }
 
 model Jaminan {
-  id         String   @id @default(uuid())
+  id         String     @id @default(uuid())
   file_sub   String?
   file_proof String?
-  status     Boolean
+  status     EDocStatus
   process_at DateTime
   created_at DateTime
   Dapem      Dapem[]
 }
 
 model Pelunasan {
-  id             String  @id @default(uuid())
-  nominal        Int
-  nominal_sumdan Int
-  desc           String?
-  file_sub       String?
+  id       String        @id @default(uuid())
+  amount   Int
+  penalty  Int
+  desc     String?
+  file_sub String?
+  type     ESettleStatus
 
-  status_paid Boolean  @default(false)
+  status_paid ESubmissionStatus @default(PENDING)
   process_at  DateTime
   created_at  DateTime
+}
+
+model Angsuran {
+  id        String    @id @default(uuid())
+  counter   Int
+  principal Int
+  margin    Int
+  date_pay  DateTime
+  date_paid DateTime?
+  remaining Int
+  Dapem     Dapem     @relation(fields: [dapemId], references: [id])
+  dapemId   String
 }
