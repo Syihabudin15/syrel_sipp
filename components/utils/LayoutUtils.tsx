@@ -5,6 +5,7 @@ import Link from "next/link";
 import { IDapem, IViewFiles } from "@/libs/IInterfaces";
 import { FormInput } from "..";
 import moment from "moment";
+import { GetAngsuran, GetBiaya, GetFullAge, IDRFormat } from "./PembiayaanUtil";
 
 export const NotifItem = ({
   name,
@@ -57,6 +58,7 @@ export const ViewFiles = ({
       </div>
     ),
   }));
+
   return (
     <Modal
       open={data.open}
@@ -75,7 +77,7 @@ export const TabsFiles = ({ data }: { data: IViewFiles }) => {
     key: d.url + i,
     label: d.name,
     children: (
-      <div style={{ width: "100%", height: "76vh" }}>
+      <div style={{ width: "100%", height: "73vh" }}>
         {d.url ? (
           <iframe
             width={"100%"}
@@ -108,6 +110,27 @@ export const DetailDapem = ({
   setOpen: Function;
   data: IDapem;
 }) => {
+  const angsReal = GetAngsuran(
+    data.plafond,
+    data.tenor,
+    data.c_margin + data.c_margin_sumdan,
+    data.margin_type,
+    1,
+  ).angsuran;
+  const angsRound = GetAngsuran(
+    data.plafond,
+    data.tenor,
+    data.c_margin + data.c_margin_sumdan,
+    data.margin_type,
+    data.rounded,
+  ).angsuran;
+  const angsMitra = GetAngsuran(
+    data.plafond,
+    data.tenor,
+    data.c_margin_sumdan,
+    data.margin_type,
+    data.rounded,
+  ).angsuran;
   return (
     <Modal
       open={open}
@@ -213,7 +236,7 @@ export const DetailDapem = ({
                 value: data.Debitur.mother_name,
               }}
             />
-            <Divider>Alamat Lengkap</Divider>
+            <Divider style={{ fontSize: 12 }}>Alamat Lengkap</Divider>
             <FormInput
               data={{
                 label: "Alamat",
@@ -390,7 +413,7 @@ export const DetailDapem = ({
                 class: "flex-1",
                 disabled: true,
                 value:
-                  new Date().getFullYear() -
+                  new Date(data.created_at).getFullYear() -
                   new Date(
                     data.house_year ? `${data.house_year}-11-11` : new Date(),
                   ).getFullYear(),
@@ -431,7 +454,7 @@ export const DetailDapem = ({
           <div className="p-2 rounded bg-gray-800 text-gray-50 font-bold my-2">
             Data Keluarga
           </div>
-          <div className="flex gap-2 flex-wrap">
+          <div className="">
             <FormInput
               data={{
                 label: "Status Perkawinan",
@@ -443,41 +466,510 @@ export const DetailDapem = ({
               }}
             />
             <Divider style={{ fontSize: 12 }}>Ahli Waris</Divider>
-            <FormInput
-              data={{
-                label: "Nama Lengkap",
-                mode: "vertical",
-                type: "text",
-                class: "flex-1",
-                disabled: true,
-                value: data.aw_name,
-              }}
-            />
+            <div className="flex gap-2 flex-wrap">
+              <FormInput
+                data={{
+                  label: "Nama Lengkap",
+                  mode: "vertical",
+                  type: "text",
+                  class: "flex-1",
+                  disabled: true,
+                  value: data.aw_name,
+                }}
+              />
+              <FormInput
+                data={{
+                  label: "Nomor NIK",
+                  mode: "vertical",
+                  type: "text",
+                  class: "flex-1",
+                  disabled: true,
+                  value: data.aw_nik,
+                }}
+              />
+              <FormInput
+                data={{
+                  label: "Tempat Tgl Lahir",
+                  mode: "vertical",
+                  type: "text",
+                  class: "flex-1",
+                  disabled: true,
+                  value: `${data.aw_birthplace}, ${moment(data.aw_birthdate).format("DD-MM-YYYY")}`,
+                }}
+              />
+              <FormInput
+                data={{
+                  label: "Hubungan",
+                  mode: "vertical",
+                  type: "text",
+                  class: "flex-1",
+                  disabled: true,
+                  value: data.aw_relate,
+                }}
+              />
+            </div>
             <Divider style={{ fontSize: 12 }}>Keluarga Tidak Serumah</Divider>
-            <FormInput
-              data={{
-                label: "Nama Lengkap",
-                mode: "vertical",
-                type: "text",
-                class: "flex-1",
-                disabled: true,
-                value: data.f_name,
-              }}
-            />
+            <div className="flex gap-2 flex-wrap">
+              <FormInput
+                data={{
+                  label: "Nama Lengkap",
+                  mode: "vertical",
+                  type: "text",
+                  class: "flex-1",
+                  disabled: true,
+                  value: data.f_name,
+                }}
+              />
+              <FormInput
+                data={{
+                  label: "Hubungan",
+                  mode: "vertical",
+                  type: "text",
+                  class: "flex-1",
+                  disabled: true,
+                  value: data.f_relate,
+                }}
+              />
+              <FormInput
+                data={{
+                  label: "Nomor Telepon",
+                  mode: "vertical",
+                  type: "text",
+                  class: "flex-1",
+                  disabled: true,
+                  value: data.f_phone,
+                }}
+              />
+              <FormInput
+                data={{
+                  label: "Alamat",
+                  mode: "vertical",
+                  type: "textarea",
+                  class: "flex-1",
+                  disabled: true,
+                  value: data.f_address,
+                }}
+              />
+            </div>
           </div>
 
           <div className="p-2 rounded bg-gray-800 text-gray-50 font-bold my-2">
             Data Pensiun
           </div>
-          <div className="flex gap-2 flex-wrap"></div>
+          <div className="flex gap-2 flex-wrap">
+            <FormInput
+              data={{
+                label: "Nama SKEP",
+                mode: "vertical",
+                type: "text",
+                class: "flex-1",
+                disabled: true,
+                value: data.Debitur.name_skep,
+              }}
+            />
+            <FormInput
+              data={{
+                label: "Nomor Pensiun",
+                mode: "vertical",
+                type: "text",
+                class: "flex-1",
+                disabled: true,
+                value: data.Debitur.nopen,
+              }}
+            />
+            <FormInput
+              data={{
+                label: "Nomor SKEP",
+                mode: "vertical",
+                type: "text",
+                class: "flex-1",
+                disabled: true,
+                value: data.Debitur.no_skep,
+              }}
+            />
+            <FormInput
+              data={{
+                label: "Tanggal SKEP",
+                mode: "vertical",
+                type: "text",
+                class: "flex-1",
+                disabled: true,
+                value: moment(data.Debitur.date_skep).format("DD-MM-YYYY"),
+              }}
+            />
+            <FormInput
+              data={{
+                label: "TMT SKEP",
+                mode: "vertical",
+                type: "text",
+                class: "flex-1",
+                disabled: true,
+                value: moment(data.Debitur.tmt_skep).format("DD-MM-YYYY"),
+              }}
+            />
+            <FormInput
+              data={{
+                label: "Kode Jiwa",
+                mode: "vertical",
+                type: "text",
+                class: "flex-1",
+                disabled: true,
+                value: data.Debitur.soul_code,
+              }}
+            />
+            <FormInput
+              data={{
+                label: "Masa Kerja",
+                mode: "vertical",
+                type: "text",
+                class: "flex-1",
+                disabled: true,
+                value: data.Debitur.job_year,
+              }}
+            />
+            <FormInput
+              data={{
+                label: "Pangkat Pensiun",
+                mode: "vertical",
+                type: "text",
+                class: "flex-1",
+                disabled: true,
+                value: data.Debitur.rank_skep,
+              }}
+            />
+            <FormInput
+              data={{
+                label: "Kelompok Pensiun",
+                mode: "vertical",
+                type: "text",
+                class: "flex-1",
+                disabled: true,
+                value: data.Debitur.group_skep,
+              }}
+            />
+          </div>
+
           <div className="p-2 rounded bg-gray-800 text-gray-50 font-bold my-2">
             Data Pembiayaan
           </div>
-          <div className="flex gap-2 flex-wrap"></div>
-          <div className="p-2 rounded bg-gray-800 text-gray-50 font-bold my-2">
-            Data Unit Pelayanan
+          <div className="flex gap-2 flex-wrap">
+            <FormInput
+              data={{
+                label: "Tanggal Permohonan",
+                mode: "vertical",
+                type: "text",
+                class: "flex-1",
+                disabled: true,
+                value: moment(data.created_at).format("DD-MM-YYYY"),
+              }}
+            />
+            <FormInput
+              data={{
+                label: "Tanggal Lahir",
+                mode: "vertical",
+                type: "text",
+                class: "flex-1",
+                disabled: true,
+                value: moment(data.Debitur.birthdate).format("DD-MM-YYYY"),
+              }}
+            />
+            <FormInput
+              data={{
+                label: "Usia Pemohon",
+                mode: "vertical",
+                type: "text",
+                class: "flex-1",
+                disabled: true,
+                value: (() => {
+                  const { year, month, day } = GetFullAge(
+                    data.Debitur.birthdate,
+                    data.created_at,
+                  );
+                  return `${year} Thn ${month} Bln ${day} Hr`;
+                })(),
+              }}
+            />
+            <FormInput
+              data={{
+                label: "Gaji Pensiun",
+                mode: "vertical",
+                type: "text",
+                class: "flex-1",
+                disabled: true,
+                value: IDRFormat(data.Debitur.salary),
+              }}
+            />
+            <FormInput
+              data={{
+                label: "Jenis Pembiayaan",
+                mode: "vertical",
+                type: "text",
+                class: "flex-1",
+                disabled: true,
+                value: data.JenisPembiayaan.name,
+              }}
+            />
+            <FormInput
+              data={{
+                label: "Produk Pembiayaan",
+                mode: "vertical",
+                type: "text",
+                class: "flex-1",
+                disabled: true,
+                value: `${data.ProdukPembiayaan.name} (${data.ProdukPembiayaan.Sumdan.code})`,
+              }}
+            />
+            <FormInput
+              data={{
+                label: "Kantor Bayar",
+                mode: "vertical",
+                type: "text",
+                class: "flex-1",
+                disabled: true,
+                value: `${data.mutasi_from} ${data.mutasi_to ? "-> " + data.mutasi_to : ""}`,
+              }}
+            />
+            <FormInput
+              data={{
+                label: "Instansi Takeover",
+                mode: "vertical",
+                type: "text",
+                class: "flex-1",
+                disabled: true,
+                value: data.takeover_from,
+              }}
+            />
+            <FormInput
+              data={{
+                label: "Nomor Rekening",
+                mode: "vertical",
+                type: "text",
+                class: "flex-1",
+                disabled: true,
+                value: data.Debitur.account_number,
+              }}
+            />
+            <FormInput
+              data={{
+                label: "Nama Bank",
+                mode: "vertical",
+                type: "text",
+                class: "flex-1",
+                disabled: true,
+                value: data.Debitur.account_name,
+              }}
+            />
+            <div className="w-full">
+              <Divider dashed style={{ fontSize: 12 }}>
+                Permohonan Pembiayaan
+              </Divider>
+              <div className="my-1 flex">
+                <div className="w-[40%]">Tenor</div>
+                <div className="w-[5%]">:</div>
+                <div className="flex-1 justify-end text-right">
+                  {data.tenor} Bulan
+                </div>
+              </div>
+              <div className="my-1 flex">
+                <div className="w-[40%]">Plafond</div>
+                <div className="w-[5%]">:</div>
+                <div className="flex-1 justify-end text-right">
+                  {IDRFormat(data.plafond)}
+                </div>
+              </div>
+              <div className="my-1 flex">
+                <div className="w-[40%]">Margin</div>
+                <div className="w-[5%]">:</div>
+                <div className="flex-1 justify-end text-right">
+                  {data.c_margin + data.c_margin_sumdan}% ({data.margin_type})
+                </div>
+              </div>
+              <div className="my-1 flex italic text-xs text-blue-500 opacity-70">
+                <div className="w-[40%]"></div>
+                <div className="w-[5%]">:</div>
+                <div className="flex-1 justify-end text-xs">
+                  Mitra {data.c_margin_sumdan}% | Selisih {data.c_margin}%
+                </div>
+              </div>
+              <div className="my-1 flex">
+                <div className="w-[40%]">Angsuran Asli</div>
+                <div className="w-[5%]">:</div>
+                <div className="flex-1 justify-end text-right">
+                  {IDRFormat(angsReal)}
+                </div>
+              </div>
+              <div className="my-1 flex">
+                <div className="w-[40%]">Pembulatan</div>
+                <div className="w-[5%]">:</div>
+                <div className="flex-1 justify-end text-right">
+                  {IDRFormat(data.rounded)}
+                </div>
+              </div>
+              <div className="my-1 flex">
+                <div className="w-[40%]">Angsuran</div>
+                <div className="w-[5%]">:</div>
+                <div className="flex-1 justify-end text-right">
+                  {IDRFormat(angsRound)}
+                </div>
+              </div>
+              <div className="my-1 flex italic text-xs text-blue-500 opacity-70">
+                <div className="w-[40%]"></div>
+                <div className="w-[5%]">:</div>
+                <div className="flex-1 justify-end text-xs">
+                  Mitra {IDRFormat(angsMitra)}
+                </div>
+              </div>
+              <div className="my-1 flex">
+                <div className="w-[40%]">Debt Service Ratio</div>
+                <div className="w-[5%]">:</div>
+                <div className="flex-1 justify-end text-right">
+                  {(angsRound / data.Debitur.salary) * 100}% /{" "}
+                  {data.ProdukPembiayaan.Sumdan.dsr}%
+                </div>
+              </div>
+            </div>
+
+            <div className="w-full">
+              <Divider dashed style={{ fontSize: 12 }}>
+                Rincian Biaya
+              </Divider>
+              <div className="my-1 flex">
+                <div className="w-[40%]">Administrasi</div>
+                <div className="w-[5%]">:</div>
+                <div className="flex-1 justify-end text-right">
+                  {IDRFormat(
+                    data.plafond * ((data.c_adm + data.c_adm_sumdan) / 100),
+                  )}
+                </div>
+              </div>
+              <div className="my-1 border-b border-dashed italic text-xs opacity-70">
+                Mitra {data.c_adm_sumdan}% (
+                {IDRFormat(data.plafond * (data.c_adm_sumdan / 100))}) | Selisih{" "}
+                {data.c_adm}% ({IDRFormat(data.plafond * (data.c_adm / 100))})
+              </div>
+              <div className="my-1 flex border-b border-dashed">
+                <div className="w-[40%]">Asuransi</div>
+                <div className="w-[5%]">:</div>
+                <div className="flex-1 justify-end text-right">
+                  {IDRFormat(data.plafond * (data.c_insurance / 100))}
+                </div>
+              </div>
+              <div className="my-1 flex border-b border-dashed">
+                <div className="w-[40%]">Tatalaksana</div>
+                <div className="w-[5%]">:</div>
+                <div className="flex-1 justify-end text-right">
+                  {IDRFormat(data.c_gov)}
+                </div>
+              </div>
+              <div className="my-1 flex border-b border-dashed">
+                <div className="w-[40%]">Buka Rekening</div>
+                <div className="w-[5%]">:</div>
+                <div className="flex-1 justify-end text-right">
+                  {IDRFormat(data.c_account)}
+                </div>
+              </div>
+              <div className="my-1 flex border-b border-dashed">
+                <div className="w-[40%]">Materai</div>
+                <div className="w-[5%]">:</div>
+                <div className="flex-1 justify-end text-right">
+                  {IDRFormat(data.c_stamp)}
+                </div>
+              </div>
+              <div className="my-1 flex border-b border-dashed">
+                <div className="w-[40%]">Mutasi</div>
+                <div className="w-[5%]">:</div>
+                <div className="flex-1 justify-end text-right">
+                  {IDRFormat(data.c_mutasi)}
+                </div>
+              </div>
+              <div className="my-1 flex border-b border-dashed text-red-500 font-bold mt-2">
+                <div className="w-[40%]">Total Biaya</div>
+                <div className="w-[5%]">:</div>
+                <div className="flex-1 justify-end text-right">
+                  {IDRFormat(GetBiaya(data))}
+                </div>
+              </div>
+              <div className="my-1 flex border-b border-dashed text-blue-500 font-bold mt-5">
+                <div className="w-[40%]">Terima Kotor</div>
+                <div className="w-[5%]">:</div>
+                <div className="flex-1 justify-end text-right">
+                  {IDRFormat(data.plafond - GetBiaya(data))}
+                </div>
+              </div>
+              <div className="my-1 flex border-b border-dashed">
+                <div className="w-[40%]">Blokir Angsuran {data.c_blokir}x</div>
+                <div className="w-[5%]">:</div>
+                <div className="flex-1 justify-end text-right">
+                  {IDRFormat(data.c_blokir * angsRound)}
+                </div>
+              </div>
+              <div className="my-1 flex border-b border-dashed">
+                <div className="w-[40%]">Nominal Takeover</div>
+                <div className="w-[5%]">:</div>
+                <div className="flex-1 justify-end text-right">
+                  {IDRFormat(data.c_takeover)}
+                </div>
+              </div>
+              <div className="my-1 flex border-b border-dashed text-green-500 font-bold">
+                <div className="w-[40%]">Terima Bersih</div>
+                <div className="w-[5%]">:</div>
+                <div className="flex-1 justify-end text-right">
+                  {IDRFormat(
+                    data.plafond -
+                      (GetBiaya(data) +
+                        data.c_takeover +
+                        data.c_blokir * angsRound),
+                  )}
+                </div>
+              </div>
+            </div>
           </div>
-          <div className="flex gap-2 flex-wrap"></div>
+
+          <div className="p-2 rounded bg-gray-800 text-gray-50 font-bold my-2">
+            Data Account Officer
+          </div>
+          <div className="flex gap-2 flex-wrap">
+            <FormInput
+              data={{
+                label: "Nama Lengkap",
+                mode: "vertical",
+                type: "text",
+                class: "flex-1",
+                disabled: true,
+                value: data.AO.fullname,
+              }}
+            />
+            <FormInput
+              data={{
+                label: "Nomor Telepon",
+                mode: "vertical",
+                type: "text",
+                class: "flex-1",
+                disabled: true,
+                value: data.AO.phone,
+              }}
+            />
+            <FormInput
+              data={{
+                label: "Posisi",
+                mode: "vertical",
+                type: "text",
+                class: "flex-1",
+                disabled: true,
+                value: data.AO.position,
+              }}
+            />
+            <FormInput
+              data={{
+                label: "Unit Pelayanan",
+                mode: "vertical",
+                type: "text",
+                class: "flex-1",
+                disabled: true,
+                value: `${data.AO.Cabang.name} | ${data.AO.Cabang.Area.name}`,
+              }}
+            />
+          </div>
         </div>
         <div className="flex-1">
           <TabsFiles

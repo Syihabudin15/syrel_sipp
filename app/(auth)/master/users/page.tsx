@@ -121,20 +121,31 @@ export default function Page() {
               {record.fullname} ({record.nip})
             </p>
             <div className="text-xs italic text-blue-400">
-              <p>@{record.username}</p>
-              <p>
-                <MailOutlined /> {record.email}
-              </p>
-              <p>
-                <PhoneOutlined /> {record.phone}
-              </p>
+              @{record.username}
             </div>
           </div>
         );
       },
     },
     {
-      title: "Info Tambahan",
+      title: "Kontak",
+      dataIndex: "kontak",
+      key: "kontak",
+      render(value, record, index) {
+        return (
+          <div className="text-xs italic text-blue-400">
+            <div>
+              <MailOutlined /> {record.email}
+            </div>
+            <div>
+              <PhoneOutlined /> {record.phone}
+            </div>
+          </div>
+        );
+      },
+    },
+    {
+      title: "Role & UP",
       dataIndex: "tambahan",
       key: "tambahan",
       sorter: (a, b) => a.fullname.localeCompare(b.fullname),
@@ -143,18 +154,18 @@ export default function Page() {
           <div>
             <Tag color={"blue"}>{record.Role.name}</Tag>
             <div className="text-xs italic text-blue-400">
-              <p>
+              <div>
                 <EnvironmentOutlined /> {record.Cabang.name}
-              </p>
+              </div>
               {record.Sumdan && (
-                <p>
+                <div>
                   <BankOutlined /> {record.Sumdan.name}
-                </p>
+                </div>
               )}
               {record.target && (
-                <p>
-                  <DollarCircleOutlined /> Target: {IDRFormat(record.target)}
-                </p>
+                <div>
+                  <DollarCircleOutlined /> {IDRFormat(record.target)}
+                </div>
               )}
             </div>
           </div>
@@ -269,14 +280,14 @@ export default function Page() {
         roles={roles}
         cabangs={cabangs}
         sumdans={sumdans}
-        key={upsert.selected ? upsert.selected.id : "create"}
+        key={upsert.selected ? "upsert" + upsert.selected.id : "create"}
       />
       <DeleteUser
         open={upsert.delete}
         setOpen={(v: boolean) => setUpsert({ ...upsert, delete: v })}
         getData={getData}
         record={upsert.selected}
-        key={upsert.selected ? upsert.selected.id : "delete"}
+        key={upsert.selected ? "delete" + upsert.selected.id : "delete"}
         modal={modal}
       />
     </Card>
@@ -391,7 +402,7 @@ function UpsertUser({
         />
         <FormInput
           data={{
-            label: "Sumber Dana",
+            label: "Mitra",
             mode: "horizontal",
             type: "select",
             value: data.sumdanId,

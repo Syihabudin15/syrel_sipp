@@ -20,7 +20,7 @@ export const GET = async (request: NextRequest) => {
   const guarantee_status = request.nextUrl.searchParams.get("guarantee_status");
   const takeover_status = request.nextUrl.searchParams.get("takeover_status");
   const mutasi_status = request.nextUrl.searchParams.get("mutasi_status");
-  // const cash_status = request.nextUrl.searchParams.get("cash_status");
+  const cash_status = request.nextUrl.searchParams.get("cash_status");
   const backdate = request.nextUrl.searchParams.get("backdate");
   const skip = (parseInt(page) - 1) * parseInt(limit);
 
@@ -51,6 +51,9 @@ export const GET = async (request: NextRequest) => {
       }),
       ...(dropping_status && {
         dropping_status: dropping_status as EDapemStatus,
+      }),
+      ...(cash_status && {
+        cash_status: cash_status as EDapemStatus,
       }),
       ...(slik_status
         ? slik_status === "all"
@@ -144,6 +147,9 @@ export const GET = async (request: NextRequest) => {
       }),
       ...(dropping_status && {
         dropping_status: dropping_status as EDapemStatus,
+      }),
+      ...(cash_status && {
+        cash_status: cash_status as EDapemStatus,
       }),
       ...(slik_status
         ? slik_status === "all"

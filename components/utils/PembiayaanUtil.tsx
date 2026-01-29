@@ -88,22 +88,8 @@ export const GetAngsuran = (
 export const GetBiaya = (data: IDapem) => {
   const adm = data.plafond * ((data.c_adm + data.c_adm_sumdan) / 100);
   const asuransi = data.plafond * (data.c_insurance / 100);
-  const angsuran = GetAngsuran(
-    data.plafond,
-    data.tenor,
-    data.c_margin + data.c_margin_sumdan,
-    data.margin_type,
-    data.rounded,
-  ).angsuran;
-  const blokir = data.c_blokir * angsuran;
   return (
-    adm +
-    asuransi +
-    data.c_gov +
-    data.c_account +
-    data.c_stamp +
-    data.c_mutasi +
-    blokir
+    adm + asuransi + data.c_gov + data.c_account + data.c_stamp + data.c_mutasi
   );
 };
 

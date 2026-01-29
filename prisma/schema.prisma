@@ -19,6 +19,7 @@ enum EDapemStatus {
   PENDING
   PROCCESS
   APPROVED
+  REJECTED
   PAID_OFF
 }
 
@@ -87,6 +88,9 @@ model Sumdan {
   updated_at       DateTime           @default(now())
   User             User[]
   ProdukPembiayaan ProdukPembiayaan[]
+  droppings        Dropping[]
+  berkas           Berkas[]
+  jaminans         Jaminan[]
 }
 
 model Area {
@@ -309,6 +313,7 @@ model Dapem {
   berkasId           String?
   jaminanId          String?
   Angsuran           Angsuran[]
+  pelunasans         Pelunasan[]
 }
 
 model Dropping {
@@ -319,6 +324,8 @@ model Dropping {
   process_at DateTime
   created_at DateTime
   Dapem      Dapem[]
+  Sumdan     Sumdan   @relation(fields: [sumdanId], references: [id])
+  sumdanId   String
 }
 
 model Berkas {
@@ -329,6 +336,8 @@ model Berkas {
   process_at DateTime
   created_at DateTime
   Dapem      Dapem[]
+  Sumdan     Sumdan     @relation(fields: [sumdanId], references: [id])
+  sumdanId   String
 }
 
 model Jaminan {
@@ -339,6 +348,8 @@ model Jaminan {
   process_at DateTime
   created_at DateTime
   Dapem      Dapem[]
+  Sumdan     Sumdan     @relation(fields: [sumdanId], references: [id])
+  sumdanId   String
 }
 
 model Pelunasan {
@@ -348,10 +359,12 @@ model Pelunasan {
   desc     String?
   file_sub String?
   type     ESettleStatus
+  Dapem    Dapem         @relation(fields: [dapemId], references: [id])
 
   status_paid ESubmissionStatus @default(PENDING)
   process_at  DateTime
   created_at  DateTime
+  dapemId     String
 }
 
 model Angsuran {

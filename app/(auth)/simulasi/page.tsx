@@ -463,6 +463,19 @@ export default function Page() {
             />
           </div>
         </div>
+        <div className="flex gap-2 justify-between items-center my-1 font-bold text-red-500 border-t mt-2">
+          <div className="flex-1">Total Biaya</div>
+          <div className="text-right">{IDRFormat(GetBiaya(data))}</div>
+        </div>
+        <div className="w-full bg-blue-800 text-gray-50 p-2 rounded mb-1">
+          Rincian Pembiayaan
+        </div>
+        <div className="flex gap-2 justify-between items-center my-1 font-bold text-blue-500">
+          <div className="flex-1">Terima Kotor</div>
+          <div className="text-right">
+            {IDRFormat(data.plafon - GetBiaya(data))}
+          </div>
+        </div>
         <div className="flex gap-2 justify-between items-center my-1">
           <div className="flex-1">Blokir Angsuran</div>
           <div className="flex gap-2 flex-2">
@@ -485,19 +498,6 @@ export default function Page() {
             />
           </div>
         </div>
-        <div className="flex gap-2 justify-between items-center my-1 font-bold text-red-500 border-t mt-2">
-          <div className="flex-1">Total Biaya</div>
-          <div className="text-right">{IDRFormat(GetBiaya(data))}</div>
-        </div>
-        <div className="w-full bg-blue-800 text-gray-50 p-2 rounded mb-1">
-          Rincian Pembiayaan
-        </div>
-        <div className="flex gap-2 justify-between items-center my-1 font-bold text-blue-500">
-          <div className="flex-1">Terima Kotor</div>
-          <div className="text-right">
-            {IDRFormat(data.plafon - GetBiaya(data))}
-          </div>
-        </div>
         <div className="flex gap-2 justify-between items-center my-1 text-red-500">
           <div className="flex-1">Nominal Takeover</div>
           <div className="flex gap-2 flex-2">
@@ -517,7 +517,12 @@ export default function Page() {
         <div className="flex gap-2 justify-between items-center my-1 font-bold text-green-500 border-t mt-2">
           <div className="flex-1">Terima Bersih</div>
           <div className="text-right">
-            {IDRFormat(data.plafon - (GetBiaya(data) + data.c_takeover))}
+            {IDRFormat(
+              data.plafon -
+                (GetBiaya(data) +
+                  data.c_takeover +
+                  data.c_blokir * data.angsuran),
+            )}
           </div>
         </div>
         <Divider style={{ marginBottom: 5 }}>Informasi Tambahan</Divider>
@@ -601,22 +606,25 @@ const ModalDetailPembiayaan = ({
         <div className="flex gap-4 flex-col sm:flex-row">
           <div className="flex-1">
             <Descriptions bordered column={1} size="small">
-              <Descriptions.Item label="Tanggal Simulasi">
+              <Descriptions.Item
+                label="Tanggal Simulasi"
+                style={{ padding: 5 }}
+              >
                 {moment(data.created_at).format("DD/MM/YYYY")}
               </Descriptions.Item>
-              <Descriptions.Item label="Nomor Pensiun">
+              <Descriptions.Item label="Nomor Pensiun" style={{ padding: 5 }}>
                 {data.nopen}
               </Descriptions.Item>
-              <Descriptions.Item label="Nama Lengkap">
+              <Descriptions.Item label="Nama Lengkap" style={{ padding: 5 }}>
                 {data.fullname}
               </Descriptions.Item>
-              <Descriptions.Item label="Gaji Pensiun">
+              <Descriptions.Item label="Gaji Pensiun" style={{ padding: 5 }}>
                 {IDRFormat(data.salary)}
               </Descriptions.Item>
-              <Descriptions.Item label="Tanggal Lahir">
+              <Descriptions.Item label="Tanggal Lahir" style={{ padding: 5 }}>
                 {moment(data.birthdate).format("DD/MM/YYYY")}
               </Descriptions.Item>
-              <Descriptions.Item label="Usia Pemohon">
+              <Descriptions.Item label="Usia Pemohon" style={{ padding: 5 }}>
                 {(() => {
                   const { year, month, day } = GetFullAge(
                     data.birthdate,
@@ -629,22 +637,30 @@ const ModalDetailPembiayaan = ({
           </div>
           <div className="flex-1">
             <Descriptions bordered column={1} size="small">
-              <Descriptions.Item label="Jenis Pembiayaan">
+              <Descriptions.Item
+                label="Jenis Pembiayaan"
+                style={{ padding: 5 }}
+              >
                 {data.Jenis.name}
               </Descriptions.Item>
-              <Descriptions.Item label="Produk Pembiayaan">
+              <Descriptions.Item
+                label="Produk Pembiayaan"
+                style={{ padding: 5 }}
+              >
                 {data.Produk.name} ({data.Produk.id})
               </Descriptions.Item>
-              <Descriptions.Item label="Margin">
+              <Descriptions.Item label="Margin" style={{ padding: 5 }}>
                 {data.margin} %
               </Descriptions.Item>
-              <Descriptions.Item label="Plafond">
+              <Descriptions.Item label="Plafond" style={{ padding: 5 }}>
                 {IDRFormat(data.plafon)}
               </Descriptions.Item>
-              <Descriptions.Item label="Tenor">{data.tenor}</Descriptions.Item>
+              <Descriptions.Item label="Tenor" style={{ padding: 5 }}>
+                {data.tenor}
+              </Descriptions.Item>
               <Descriptions.Item
                 label="Usia/Tanggal Lunas"
-                style={{ fontSize: 12 }}
+                style={{ fontSize: 12, padding: 5 }}
               >
                 {(() => {
                   const { year, month, day } = GetFullAge(
@@ -660,10 +676,10 @@ const ModalDetailPembiayaan = ({
 
         <div className="flex gap-4 flex-col sm:flex-row my-2">
           <div className="flex-1">
-            <div className="font-bold italic p-2 bg-red-600 text-gray-50 rounded">
+            <div className="font-bold italic p-2 bg-red-600 text-gray-50 rounded my-2">
               Rincian Biaya
             </div>
-            <div>
+            <div className="flex flex-col gap-1">
               <div className="flex justify-between gap-2 border-b border-dashed">
                 <span>Administrasi</span>
                 <span>{IDRFormat((data.plafon * data.c_adm) / 100)}</span>
@@ -688,13 +704,8 @@ const ModalDetailPembiayaan = ({
                 <span>Mutasi</span>
                 <span>{IDRFormat(data.c_mutasi)}</span>
               </div>
-              <div className="flex justify-between gap-2">
-                <span>Blokir Angsuran </span>
-                <span>{data.c_blokir}x</span>
-                <span>{IDRFormat(data.c_blokir * data.angsuran)}</span>
-              </div>
               <div className="flex justify-between gap-2 font-bold text-red-500 border-t mt-2">
-                <span>TOTAL</span>
+                <span>TOTAL BIAYA</span>
                 <span>{IDRFormat(GetBiaya(data))}</span>
               </div>
             </div>
@@ -722,19 +733,33 @@ const ModalDetailPembiayaan = ({
               column={1}
               size="small"
               title="Analisa Akhir"
-              styles={{ header: { marginBottom: 5 } }}
+              styles={{ header: { marginBottom: 2 } }}
             >
-              <Descriptions.Item label="Terima Kotor">
+              <Descriptions.Item label="Terima Kotor" style={{ padding: 5 }}>
                 {IDRFormat(data.plafon - GetBiaya(data))}
               </Descriptions.Item>
-              <Descriptions.Item label="Nominal Takeover">
+              <Descriptions.Item
+                label={`Blokir Angsuran ${data.c_blokir}X`}
+                style={{ padding: 5 }}
+              >
+                {IDRFormat(data.c_blokir)}
+              </Descriptions.Item>
+              <Descriptions.Item
+                label="Nominal Takeover"
+                style={{ padding: 5 }}
+              >
                 {IDRFormat(data.c_takeover)}
               </Descriptions.Item>
               <Descriptions.Item
                 label="Terima Bersih"
-                style={{ fontWeight: "bold", color: "green" }}
+                style={{ fontWeight: "bold", color: "green", padding: 5 }}
               >
-                {IDRFormat(data.plafon - (GetBiaya(data) + data.c_takeover))}
+                {IDRFormat(
+                  data.plafon -
+                    (GetBiaya(data) +
+                      data.c_takeover +
+                      data.c_blokir * data.angsuran),
+                )}
               </Descriptions.Item>
             </Descriptions>
           </div>
@@ -807,14 +832,7 @@ const defaultData: ISimulasi = {
 const GetBiaya = (data: ISimulasi) => {
   const adm = (data.plafon * data.c_adm) / 100;
   const asuransi = (data.plafon * data.c_insurance) / 100;
-  const blokir = data.c_blokir * data.angsuran;
   return (
-    adm +
-    asuransi +
-    data.c_gov +
-    data.c_account +
-    data.c_stamp +
-    data.c_mutasi +
-    blokir
+    adm + asuransi + data.c_gov + data.c_account + data.c_stamp + data.c_mutasi
   );
 };

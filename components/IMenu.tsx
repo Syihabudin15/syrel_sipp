@@ -4,6 +4,7 @@ import {
   BranchesOutlined,
   CalculatorOutlined,
   DashboardOutlined,
+  FileProtectOutlined,
   KeyOutlined,
   MoneyCollectOutlined,
   ReadOutlined,
@@ -42,6 +43,32 @@ export const listMenuUI: IMenuType[] = [
     key: "/monitoring",
     icon: <ReadOutlined />,
     needaccess: true,
+  },
+  {
+    label: "Proses Pembiayaan",
+    key: "/proses",
+    icon: <FileProtectOutlined />,
+    needaccess: true,
+    children: [
+      {
+        label: "Verifikasi Pembiayaan",
+        key: "/proses/verif",
+        icon: <FileProtectOutlined />,
+        needaccess: true,
+      },
+      {
+        label: "Verifikasi SLIK",
+        key: "/proses/slik",
+        icon: <FileProtectOutlined />,
+        needaccess: true,
+      },
+      {
+        label: "Approval Pembiayaan",
+        key: "/proses/approv",
+        icon: <FileProtectOutlined />,
+        needaccess: true,
+      },
+    ],
   },
   {
     label: "Profile Setting",

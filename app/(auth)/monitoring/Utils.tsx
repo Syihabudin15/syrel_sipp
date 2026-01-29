@@ -728,6 +728,21 @@ export default function UpsertPermohonan({ record }: { record?: IDapem }) {
           <FormInput
             data={{
               mode: "vertical",
+              label: "Hubungan",
+              type: "text",
+              class: "flex-1",
+              required: true,
+              value: data.aw_relate,
+              onChange: (e: string) =>
+                setData({
+                  ...data,
+                  aw_relate: e,
+                }),
+            }}
+          />
+          <FormInput
+            data={{
+              mode: "vertical",
               label: "Nomor NIK",
               type: "text",
               class: "flex-1",
@@ -789,21 +804,6 @@ export default function UpsertPermohonan({ record }: { record?: IDapem }) {
           <FormInput
             data={{
               mode: "vertical",
-              label: "No Telepon",
-              type: "text",
-              class: "flex-1",
-              required: true,
-              value: data.f_phone,
-              onChange: (e: string) =>
-                setData({
-                  ...data,
-                  f_phone: e,
-                }),
-            }}
-          />
-          <FormInput
-            data={{
-              mode: "vertical",
               label: "Hubungan",
               type: "text",
               class: "flex-1",
@@ -813,6 +813,21 @@ export default function UpsertPermohonan({ record }: { record?: IDapem }) {
                 setData({
                   ...data,
                   f_relate: e,
+                }),
+            }}
+          />
+          <FormInput
+            data={{
+              mode: "vertical",
+              label: "No Telepon",
+              type: "text",
+              class: "flex-1",
+              required: true,
+              value: data.f_phone,
+              onChange: (e: string) =>
+                setData({
+                  ...data,
+                  f_phone: e,
                 }),
             }}
           />
@@ -1091,7 +1106,7 @@ export default function UpsertPermohonan({ record }: { record?: IDapem }) {
                   onChange: (e: string) =>
                     setData({
                       ...data,
-                      Debitur:{...data.Debitur, account_number:e},
+                      Debitur: { ...data.Debitur, account_number: e },
                     }),
                 }}
               />
@@ -1105,7 +1120,7 @@ export default function UpsertPermohonan({ record }: { record?: IDapem }) {
                   onChange: (e: string) =>
                     setData({
                       ...data,
-                      Debitur: {...data.Debitur,account_name:e},
+                      Debitur: { ...data.Debitur, account_name: e },
                     }),
                 }}
               />
@@ -1266,7 +1281,7 @@ export default function UpsertPermohonan({ record }: { record?: IDapem }) {
         </div>
         <Divider titlePlacement="left">Rincian Biaya</Divider>
         <div className="flex gap-4 flex-col sm:flex-row">
-          <div className="flex-1">
+          <div className="flex-1 flex-col gap-1">
             <div className="flex justify-between border-b border-dashed my-1">
               <div className="flex-1">Administrasi</div>
               <div className="flex gap-2 flex-2">
@@ -1393,30 +1408,6 @@ export default function UpsertPermohonan({ record }: { record?: IDapem }) {
                 />
               </div>
             </div>
-            <div className="flex justify-between border-b border-dashed my-1">
-              <div className="flex-1">Blokir Angsuran</div>
-              <div className="flex gap-2 flex-2">
-                <Input
-                  size="small"
-                  style={{ width: 80 }}
-                  suffix={<span className="text-xs italic opacity-70">%</span>}
-                  value={data.c_blokir}
-                  onChange={(e) =>
-                    setData({
-                      ...data,
-                      c_blokir: Number(e.target.value || 0),
-                    })
-                  }
-                  type={"number"}
-                />
-                <Input
-                  size="small"
-                  disabled
-                  value={IDRFormat(data.c_blokir * temp.angsuran)}
-                  style={{ textAlign: "right", color: "black" }}
-                />
-              </div>
-            </div>
             <div className="flex justify-between border-t mt-3 text-red-500 font-bold">
               <div className="flex-1">Total Biaya</div>
               <div className="text-right">{IDRFormat(GetBiaya(data))}</div>
@@ -1443,7 +1434,31 @@ export default function UpsertPermohonan({ record }: { record?: IDapem }) {
               <span>Terima Kotor</span>
               <span>{IDRFormat(data.plafond - GetBiaya(data))}</span>
             </div>
-            <div className="flex gap-2 justify-between items-center my-1 text-red-500">
+            <div className="flex justify-between border-b border-dashed my-1">
+              <div className="flex-1">Blokir Angsuran</div>
+              <div className="flex gap-2 flex-2">
+                <Input
+                  size="small"
+                  style={{ width: 80 }}
+                  suffix={<span className="text-xs italic opacity-70">%</span>}
+                  value={data.c_blokir}
+                  onChange={(e) =>
+                    setData({
+                      ...data,
+                      c_blokir: Number(e.target.value || 0),
+                    })
+                  }
+                  type={"number"}
+                />
+                <Input
+                  size="small"
+                  disabled
+                  value={IDRFormat(data.c_blokir * temp.angsuran)}
+                  style={{ textAlign: "right", color: "black" }}
+                />
+              </div>
+            </div>
+            <div className="flex gap-2 justify-between items-center my-1">
               <div className="flex-1">Nominal Takeover</div>
               <div className="flex gap-2 flex-2">
                 <Input
@@ -1462,7 +1477,12 @@ export default function UpsertPermohonan({ record }: { record?: IDapem }) {
             <div className="flex justify-between border-b border-dashed my-1 font-bold text-green-600">
               <span>Terima Bersih</span>
               <span>
-                {IDRFormat(data.plafond - (GetBiaya(data) + data.c_takeover))}
+                {IDRFormat(
+                  data.plafond -
+                    (GetBiaya(data) +
+                      data.c_takeover +
+                      data.c_blokir * temp.angsuran),
+                )}
               </span>
             </div>
           </div>

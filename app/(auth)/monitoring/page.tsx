@@ -83,7 +83,7 @@ export default function Page() {
   });
   const [sumdans, setSumdans] = useState<Sumdan[]>([]);
   const [jeniss, setJeniss] = useState<JenisPembiayaan[]>([]);
-  const { modal, notification } = App.useApp();
+  const { modal } = App.useApp();
   const { hasAccess } = useAccess("/monitoring");
   const user = useUser();
   const [views, setViews] = useState<IViewFiles>({
@@ -162,7 +162,7 @@ export default function Page() {
       render(value, record, index) {
         return (
           <div>
-            <p>{record.Debitur.fullname}</p>
+            <p className="font-bold">{record.Debitur.fullname}</p>
             <div className="text-xs opacity-70">
               <p>@{record.Debitur.nopen}</p>
             </div>
@@ -258,7 +258,7 @@ export default function Page() {
           ? (JSON.parse(record.verif_desc) as IDesc)
           : null;
         return (
-          <div>
+          <div className="flex gap-1">
             {GetStatusTag(record.verif_status)}
             {temp && (
               <Paragraph
@@ -288,7 +288,7 @@ export default function Page() {
           ? (JSON.parse(record.slik_desc) as IDesc)
           : null;
         return (
-          <div>
+          <div className="flex gap-1">
             {GetStatusTag(record.slik_status)}
             {temp && (
               <Paragraph
@@ -318,7 +318,7 @@ export default function Page() {
           ? (JSON.parse(record.approv_desc) as IDesc)
           : null;
         return (
-          <div>
+          <div className="flex gap-1">
             {GetStatusTag(record.approv_status)}
             {temp && (
               <Paragraph
@@ -342,10 +342,10 @@ export default function Page() {
       title: "Status Dropping",
       dataIndex: "dropping_status",
       key: "dropping_status",
-      width: 150,
+      width: 180,
       render: (_, record, i) => {
         return (
-          <div>
+          <div className="flex gap-1">
             {GetDroppingStatusTag(record.dropping_status)}
             {record.Dropping && record.Dropping.process_at && (
               <div className="text-xs">
@@ -526,11 +526,13 @@ export default function Page() {
     >
       <div className="flex justify-between my-1 gap-2 overflow-auto">
         <div className="flex gap-2">
-          <Link href={"/monitoring/upsert"}>
-            <Button size="small" icon={<PlusCircleOutlined />} type="primary">
-              Add New
-            </Button>
-          </Link>
+          {hasAccess("write") && (
+            <Link href={"/monitoring/upsert"}>
+              <Button size="small" icon={<PlusCircleOutlined />} type="primary">
+                Add New
+              </Button>
+            </Link>
+          )}
           <RangePicker
             size="small"
             onChange={(date, dateStr) =>
@@ -541,7 +543,7 @@ export default function Page() {
           {user && !user.sumdanId && (
             <Select
               size="small"
-              placeholder="Pilih Sumdan..."
+              placeholder="Pilih Mitra..."
               options={sumdans.map((s) => ({ label: s.code, value: s.id }))}
               onChange={(e) => setPageProps({ ...pageProps, sumdanId: e })}
               allowClear
@@ -564,7 +566,7 @@ export default function Page() {
             options={[
               { label: "Saved (DRAFT)", value: "DRAFT" },
               { label: "Antri (PENDING)", value: "PENDING" },
-              { label: "Proses (PROCCESS)", value: "PROCESS" },
+              { label: "Proses (PROCCESS)", value: "PROCCESS" },
               { label: "Dropping (APPROVED)", value: "APPROVED" },
               { label: "Batal (CANCEL)", value: "CANCEL" },
               { label: "Lunas (PAID_OFF)", value: "PAID_OFF" },
@@ -717,7 +719,7 @@ const SendSubmission = ({
       body: JSON.stringify({
         ...data,
         verif_status: "PENDING",
-        dropping_status: null,
+        dropping_status: "PENDING",
       }),
     })
       .then((res) => res.json())
@@ -731,6 +733,7 @@ const SendSubmission = ({
       });
     setLoading(false);
   };
+
   return (
     <Modal
       open={open}
@@ -789,6 +792,7 @@ const DeleteSubmission = ({
       });
     setLoading(false);
   };
+
   const handleCancel = async () => {
     setLoading(true);
     await fetch("/api/dapem?id=" + data.id, {

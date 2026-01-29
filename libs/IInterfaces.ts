@@ -84,4 +84,13 @@ export interface IDapem extends Dapem {
   JenisPembiayaan: JenisPembiayaan;
   Angsuran: Angsuran[];
 }
+
+export interface IDropping extends Dropping {
+  Sumdan: Sumdan;
+  Dapem: IDapem[];
+}
+
+export interface ISumdanDropping extends Sumdan {
+  Dapem: IDapem[];
+}
 // End Models
