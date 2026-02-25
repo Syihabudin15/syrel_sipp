@@ -10,7 +10,7 @@ export const config = {
     "/dashboard",
     "/dashboardbis",
     "/simulasi",
-    "monitoring",
+    "/monitoring",
     "/proses/:path*",
     "/pencairan/:path*",
     "/ttpb/:path*",

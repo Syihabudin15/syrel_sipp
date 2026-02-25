@@ -133,7 +133,7 @@ export default function Page() {
 
   return (
     <Spin spinning={loading}>
-      <div className="p-2 bg-white overflow-auto">
+      <div className="p-2 bg-white">
         <div className="flex gap-4 font-bold text-2xl m-2 items-end">
           <p>Data Pencapaian By Area</p>
           <RangePicker
@@ -144,7 +144,7 @@ export default function Page() {
             style={{ width: 200 }}
           />
         </div>
-        <div className="flex flex-col mt-5 gap-4">
+        <div className="flex flex-col mt-5 gap-4 overflow-auto">
           {pageProps.data &&
             pageProps.data.map((a) => (
               <div key={a.id} className="flex border items-center">

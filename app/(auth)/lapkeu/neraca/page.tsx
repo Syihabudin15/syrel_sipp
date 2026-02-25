@@ -38,7 +38,7 @@ export default function Page() {
   }, [backdate]);
 
   return (
-    <div className="flex gap-4 border border-gray-300 rounded m-2 p-2  bg-gray-50">
+    <div className="flex sm:flex-row flex-col gap-4 border border-gray-300 rounded m-2 p-2  bg-gray-50">
       <div className="flex-1 flex flex-col justify-between">
         <p className="font-bold text-lg">ASSET</p>
         {data.asset.map((d) => (

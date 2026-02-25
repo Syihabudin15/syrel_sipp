@@ -55,7 +55,7 @@ export default function Page() {
           style={{ width: 170 }}
         />
       </div>
-      <div className="flex gap-8 ">
+      <div className="flex gap-8 sm:flex-row flex-col">
         <div className="flex-1 ">
           <p className="font-bold text-lg my-2">PENDAPATAN</p>
           <div className="flex gap-2 border-b border-dashed border-gray-300">

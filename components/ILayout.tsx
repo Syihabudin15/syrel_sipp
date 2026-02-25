@@ -172,9 +172,12 @@ export default function ILayout({ children }: { children: React.ReactNode }) {
             background: "#fff",
           }}
         >
-          <p className="ml-5 font-bold text-xl">
-            {process.env.NEXT_PUBLIC_APP_SHORTNAME}
-          </p>
+          <div className="flex items-center gap-2 ml-2">
+            <img width={30} src={process.env.NEXT_PUBLIC_APP_LOGO || ""} />
+            <p className=" font-bold text-xl">
+              {process.env.NEXT_PUBLIC_APP_SHORTNAME}
+            </p>
+          </div>
           <div className="pr-4 flex gap-4 items-center">
             <Dropdown
               trigger={["hover"]}
@@ -275,7 +278,6 @@ export default function ILayout({ children }: { children: React.ReactNode }) {
                 }
               ></Button>
             </Dropdown>
-            <p>{user?.username}</p>
             <Button
               icon={<LogoutOutlined />}
               danger
@@ -315,8 +317,8 @@ export default function ILayout({ children }: { children: React.ReactNode }) {
         <Drawer
           placement="left"
           size={"70vw"}
-          open={collapsed}
-          onClose={() => setCollapsed(false)}
+          open={!collapsed}
+          onClose={() => setCollapsed(!collapsed)}
           title="MAIN MENU"
         >
           {user && (

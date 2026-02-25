@@ -58,7 +58,7 @@ export default function Page() {
       parseInt(String(maxTenn)) > data.Produk.max_tenor
         ? data.Produk.max_tenor
         : parseInt(String(maxTenn));
-    const maxPlaf = parseInt(
+    const maxPlaff = parseInt(
       String(
         GetMaxPlafond(
           data.margin,
@@ -67,6 +67,8 @@ export default function Page() {
         ),
       ),
     );
+    const maxPlaf =
+      maxPlaff > data.Produk.max_plafond ? data.Produk.max_plafond : maxPlaff;
     const angs = GetAngsuran(
       data.plafon,
       data.tenor,
@@ -145,7 +147,7 @@ export default function Page() {
               setData({ ...data, created_at: new Date(e) }),
           }}
         />
-        <div className="flex gap-3 flex-wrap">
+        <div className="flex gap-2 flex-wrap">
           <FormInput
             data={{
               label: "Nomor Pensiun",
@@ -186,7 +188,7 @@ export default function Page() {
                 setData({ ...data, birthdate: new Date(e) }),
             }}
           />
-          <div className="flex-1">
+          <div className="w-full">
             <p>Usia Pemohon</p>
             <div className="flex gap-2">
               <Input
@@ -241,14 +243,14 @@ export default function Page() {
               },
             }}
           />
-          <div className="flex-1">
+          <div className="w-full">
             <p>Produk Pembiayaan</p>
             <Select
               className="w-full"
               options={sumdanAv.map((j) => ({
                 label: j.name,
                 options: j.ProdukPembiayaan.map((p) => ({
-                  label: `${p.name} - ${p.id}`,
+                  label: `${p.name}`,
                   value: p.id,
                 })),
               }))}
@@ -291,69 +293,75 @@ export default function Page() {
           <div className="w-full bg-gray-800 text-gray-50 p-2 rounded">
             Rekomendasi Pembiayaan
           </div>
-          <FormInput
-            data={{
-              label: "Tenor",
-              type: "number",
-              mode: "vertical",
-              class: "flex-1",
-              value: data.tenor,
-              onChange: (e: string) => setData({ ...data, tenor: Number(e) }),
-            }}
-          />
-          <FormInput
-            data={{
-              label: "Max Tenor",
-              type: "number",
-              mode: "vertical",
-              class: "flex-1",
-              disabled: true,
-              value: data.max_tenor,
-            }}
-          />
-          <FormInput
-            data={{
-              label: "Plafond",
-              type: "text",
-              mode: "vertical",
-              class: "flex-1",
-              value: IDRFormat(data.plafon || 0),
-              onChange: (e: string) =>
-                setData({ ...data, plafon: IDRToNumber(e || "0") }),
-            }}
-          />
-          <FormInput
-            data={{
-              label: "Max Plafond",
-              type: "text",
-              mode: "vertical",
-              class: "flex-1",
-              disabled: true,
-              value: IDRFormat(data.max_plafond || 0),
-            }}
-          />
-          <FormInput
-            data={{
-              label: "Angsuran",
-              type: "text",
-              mode: "vertical",
-              class: "flex-1",
-              disabled: true,
-              value: IDRFormat(data.angsuran || 0),
-            }}
-          />
-          <FormInput
-            data={{
-              label: "Max Angsuran",
-              type: "text",
-              mode: "vertical",
-              class: "flex-1",
-              disabled: true,
-              value: IDRFormat((data.salary * data.Sumdan.dsr) / 100 || 0),
-              onChange: (e: string) =>
-                setData({ ...data, salary: IDRToNumber(e || "0") }),
-            }}
-          />
+          <div className="flex gap-2 ">
+            <FormInput
+              data={{
+                label: "Tenor",
+                type: "number",
+                mode: "vertical",
+                class: "flex-1",
+                value: data.tenor,
+                onChange: (e: string) => setData({ ...data, tenor: Number(e) }),
+              }}
+            />
+            <FormInput
+              data={{
+                label: "Max Tenor",
+                type: "number",
+                mode: "vertical",
+                class: "flex-1",
+                disabled: true,
+                value: data.max_tenor,
+              }}
+            />
+          </div>
+          <div className="flex gap-2">
+            <FormInput
+              data={{
+                label: "Plafond",
+                type: "text",
+                mode: "vertical",
+                class: "flex-1",
+                value: IDRFormat(data.plafon || 0),
+                onChange: (e: string) =>
+                  setData({ ...data, plafon: IDRToNumber(e || "0") }),
+              }}
+            />
+            <FormInput
+              data={{
+                label: "Max Plafond",
+                type: "text",
+                mode: "vertical",
+                class: "flex-1",
+                disabled: true,
+                value: IDRFormat(data.max_plafond || 0),
+              }}
+            />
+          </div>
+          <div className="flex  gap-2">
+            <FormInput
+              data={{
+                label: "Angsuran",
+                type: "text",
+                mode: "vertical",
+                class: "flex-1",
+                disabled: true,
+                value: IDRFormat(data.angsuran || 0),
+              }}
+            />
+            <FormInput
+              data={{
+                label: "Max Angsuran",
+                type: "text",
+                mode: "vertical",
+                class: "flex-1",
+                disabled: true,
+                value: IDRFormat((data.salary * data.Sumdan.dsr) / 100 || 0),
+                onChange: (e: string) =>
+                  setData({ ...data, salary: IDRToNumber(e || "0") }),
+              }}
+            />
+          </div>
         </div>
       </Card>
       <Card
@@ -367,7 +375,7 @@ export default function Page() {
         <div className="w-full bg-red-500 text-gray-50 p-2 rounded mb-1">
           Rincian Biaya
         </div>
-        <div className="flex gap-2 justify-between items-center my-1">
+        <div className="flex gap-2 justify-between items-center my-1 border-b border-dashed">
           <div className="flex-1">Biaya Administrasi</div>
           <div className="flex gap-2 flex-2">
             <Input
@@ -389,7 +397,7 @@ export default function Page() {
             />
           </div>
         </div>
-        <div className="flex gap-2 justify-between items-center my-1">
+        <div className="flex gap-2 justify-between items-center my-1 border-b border-dashed">
           <div className="flex-1">Biaya Asuransi</div>
           <div className="flex gap-2 flex-2">
             <Input
@@ -411,7 +419,7 @@ export default function Page() {
             />
           </div>
         </div>
-        <div className="flex gap-2 justify-between items-center my-1">
+        <div className="flex gap-2 justify-between items-center my-1 border-b border-dashed">
           <div className="flex-1">Biaya Tatalaksana</div>
           <div className="flex gap-2 flex-2">
             <Input
@@ -425,7 +433,7 @@ export default function Page() {
             />
           </div>
         </div>
-        <div className="flex gap-2 justify-between items-center my-1">
+        <div className="flex gap-2 justify-between items-center my-1 border-b border-dashed">
           <div className="flex-1">Biaya Buka Rekening</div>
           <div className="flex gap-2 flex-2">
             <Input
@@ -439,7 +447,7 @@ export default function Page() {
             />
           </div>
         </div>
-        <div className="flex gap-2 justify-between items-center my-1">
+        <div className="flex gap-2 justify-between items-center my-1 border-b border-dashed">
           <div className="flex-1">Biaya Materai</div>
           <div className="flex gap-2 flex-2">
             <Input
@@ -453,7 +461,7 @@ export default function Page() {
             />
           </div>
         </div>
-        <div className="flex gap-2 justify-between items-center my-1">
+        <div className="flex gap-2 justify-between items-center my-1 border-b border-dashed">
           <div className="flex-1">Biaya Mutasi</div>
           <div className="flex gap-2 flex-2">
             <Input
@@ -474,13 +482,13 @@ export default function Page() {
         <div className="w-full bg-blue-800 text-gray-50 p-2 rounded mb-1">
           Rincian Pembiayaan
         </div>
-        <div className="flex gap-2 justify-between items-center my-1 font-bold text-blue-500">
+        <div className="flex gap-2 justify-between items-center my-1 font-bold text-blue-500 border-b border-dashed">
           <div className="flex-1">Terima Kotor</div>
           <div className="text-right">
             {IDRFormat(data.plafon - GetBiaya(data))}
           </div>
         </div>
-        <div className="flex gap-2 justify-between items-center my-1">
+        <div className="flex gap-2 justify-between items-center my-1 border-b border-dashed">
           <div className="flex-1">Blokir Angsuran</div>
           <div className="flex gap-2 flex-2">
             <Input
@@ -501,7 +509,7 @@ export default function Page() {
             />
           </div>
         </div>
-        <div className="flex gap-2 justify-between items-center my-1 text-red-500">
+        <div className="flex gap-2 justify-between items-center my-1 text-red-500 border-b border-dashed">
           <div className="flex-1">Nominal Takeover</div>
           <div className="flex gap-2 flex-2">
             <Input
@@ -738,7 +746,10 @@ const ModalDetailPembiayaan = ({
               title="Analisa Akhir"
               styles={{ header: { marginBottom: 2 } }}
             >
-              <Descriptions.Item label="Terima Kotor" style={{ padding: 5 }}>
+              <Descriptions.Item
+                label="Terima Kotor"
+                style={{ padding: 5, fontSize: 12 }}
+              >
                 {IDRFormat(data.plafon - GetBiaya(data))}
               </Descriptions.Item>
               <Descriptions.Item
