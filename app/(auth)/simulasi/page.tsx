@@ -586,21 +586,28 @@ const ModalDetailPembiayaan = ({
   const handleDownloadImage = async () => {
     if (printRef.current === null) return;
 
+    const originalStyle = printRef.current.style.width;
+
     try {
+      printRef.current.style.width = "1200px";
+
       const dataUrl = await toPng(printRef.current, {
         cacheBust: true,
-        width: 1000,
+        width: 1200,
         style: {
           padding: "20px",
           background: "#fff",
         },
       });
 
+      printRef.current.style.width = originalStyle;
+
       const link = document.createElement("a");
       link.download = `Analisa-${data?.fullname || "Pembiayaan"}.png`;
       link.href = dataUrl;
       link.click();
     } catch (err) {
+      printRef.current.style.width = originalStyle; // Reset jika error
       console.error("Gagal mendownload gambar", err);
     }
   };
@@ -614,8 +621,8 @@ const ModalDetailPembiayaan = ({
     >
       <div ref={printRef} style={{ padding: "10px", backgroundColor: "#fff" }}>
         <p className="font-bold text-lg mb-1">ANALISA PEMBIAYAAN</p>
-        <div className="flex gap-4 flex-col sm:flex-row">
-          <div className="flex-1">
+        <div className="flex gap-4 flex-wrap">
+          <div className="w-full sm:flex-1">
             <Descriptions bordered column={1} size="small">
               <Descriptions.Item
                 label="Tanggal Simulasi"
@@ -646,7 +653,7 @@ const ModalDetailPembiayaan = ({
               </Descriptions.Item>
             </Descriptions>
           </div>
-          <div className="flex-1">
+          <div className="w-full sm:flex-1">
             <Descriptions bordered column={1} size="small">
               <Descriptions.Item
                 label="Jenis Pembiayaan"
@@ -685,8 +692,8 @@ const ModalDetailPembiayaan = ({
           </div>
         </div>
 
-        <div className="flex gap-4 flex-col sm:flex-row my-2">
-          <div className="flex-1">
+        <div className="flex gap-4 flex-wrap my-2">
+          <div className="w-full sm:flex-1">
             <div className="font-bold italic p-2 bg-red-600 text-gray-50 rounded my-2">
               Rincian Biaya
             </div>
@@ -721,7 +728,7 @@ const ModalDetailPembiayaan = ({
               </div>
             </div>
           </div>
-          <div className="flex-1">
+          <div className="w-full sm:flex-1">
             <div className="italic mb-1 border-b rounded p-1">
               <div className="flex justify-between border-b border-dashed">
                 <div>Angsuran</div>
@@ -746,10 +753,7 @@ const ModalDetailPembiayaan = ({
               title="Analisa Akhir"
               styles={{ header: { marginBottom: 2 } }}
             >
-              <Descriptions.Item
-                label="Terima Kotor"
-                style={{ padding: 5, fontSize: 12 }}
-              >
+              <Descriptions.Item label="Terima Kotor" style={{ padding: 5 }}>
                 {IDRFormat(data.plafon - GetBiaya(data))}
               </Descriptions.Item>
               <Descriptions.Item
