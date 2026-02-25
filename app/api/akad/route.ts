@@ -26,7 +26,7 @@ export const POST = async (req: NextRequest) => {
           no_contract: data.no_contract,
         },
       });
-      const generateAngsurans = await GenerateTableAngsuran({
+      const generateAngsurans = GenerateTableAngsuran({
         ...find,
         date_contract: data.date_contract,
         no_contract: data.no_contract,
@@ -36,7 +36,7 @@ export const POST = async (req: NextRequest) => {
         find.Angsuran && find.Angsuran.length !== 0
           ? generateAngsurans.map((item) => ({
               ...item,
-              tgl_bayar:
+              date_paid:
                 find.Angsuran.find((a) => a.counter === item.counter)
                   ?.date_paid || null,
             }))
@@ -45,6 +45,16 @@ export const POST = async (req: NextRequest) => {
         data: newAngsurans,
       });
       return newAngsurans;
+    });
+    result.unshift({
+      id: "",
+      counter: 0,
+      date_pay: moment(data.date_contract).toDate(),
+      date_paid: null,
+      dapemId: "",
+      principal: 0,
+      margin: 0,
+      remaining: find.plafond,
     });
     return NextResponse.json(
       { msg: "Berhasil memperbarui data akad!", status: 200, data: result },

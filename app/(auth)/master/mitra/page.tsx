@@ -1,7 +1,11 @@
 "use client";
 
 import { FormInput } from "@/components";
-import { IDRFormat, IDRToNumber } from "@/components/utils/PembiayaanUtil";
+import {
+  IDRFormat,
+  IDRToNumber,
+  serializeForApi,
+} from "@/components/utils/PembiayaanUtil";
 import { IActionTable, IPageProps } from "@/libs/IInterfaces";
 import { useAccess } from "@/libs/Permission";
 import {
@@ -13,13 +17,14 @@ import {
   PlusCircleFilled,
   SaveOutlined,
 } from "@ant-design/icons";
-import { ProdukPembiayaan, Sumdan } from "@prisma/client";
+import { Angsuran, Dapem, ProdukPembiayaan, Sumdan } from "@prisma/client";
 import {
   App,
   Button,
   Card,
   Input,
   Modal,
+  Progress,
   Table,
   TableProps,
   Typography,
@@ -29,8 +34,14 @@ import moment from "moment";
 import { useEffect, useState } from "react";
 const { Paragraph } = Typography;
 
+interface IDapem extends Dapem {
+  Angsuran: Angsuran[];
+}
+interface IProduk extends ProdukPembiayaan {
+  Dapem: IDapem[];
+}
 interface ISumdan extends Sumdan {
-  ProdukPembiayaan: ProdukPembiayaan[];
+  ProdukPembiayaan: IProduk[];
 }
 
 export default function Page() {
@@ -56,6 +67,7 @@ export default function Page() {
     const params = new URLSearchParams();
     params.append("page", pageProps.page.toString());
     params.append("limit", pageProps.limit.toString());
+    params.append("include", "true");
     if (pageProps.search) {
       params.append("search", pageProps.search);
     }
@@ -63,7 +75,7 @@ export default function Page() {
     const json = await res.json();
     setPageProps((prev) => ({
       ...prev,
-      data: json.data,
+      data: serializeForApi(json.data),
       total: json.total,
     }));
     setLoading(false);
@@ -81,7 +93,6 @@ export default function Page() {
       title: "ID",
       dataIndex: "id",
       key: "id",
-      width: 100,
     },
     {
       title: "Nama Mitra",
@@ -127,7 +138,7 @@ export default function Page() {
               <p>Rounded : {IDRFormat(record.rounded)}</p>
               <p>DSR : {IDRFormat(record.dsr)}</p>
               <p>TBO : {record.tbo} Bulan</p>
-              <p>Limit : {IDRFormat(record.limit)}</p>
+              <p>Limit : {IDRFormat(Number(record.limit))}</p>
             </div>
           </div>
         );
@@ -146,6 +157,39 @@ export default function Page() {
               <p>Tatalaksana : {IDRFormat(record.c_gov)}</p>
               <p>Rekening : {IDRFormat(record.c_account)}</p>
               <p>Materai : {IDRFormat(record.c_stamps)}</p>
+            </div>
+          </div>
+        );
+      },
+    },
+    {
+      title: "Limit",
+      dataIndex: "limit",
+      key: "limit",
+      render(value, record, index) {
+        const total = record.ProdukPembiayaan.flatMap((d) => d.Dapem).reduce(
+          (acc, curr) => acc + curr.plafond,
+          0,
+        );
+        const os = record.ProdukPembiayaan.flatMap((d) =>
+          d.Dapem.filter((dp) => dp.dropping_status === "APPROVED").flatMap(
+            (dpa) => dpa.Angsuran,
+          ),
+        )
+          .filter((a) => a.date_paid === null)
+          .reduce((acc, curr) => acc + curr.principal, 0);
+        return (
+          <div className="flex flex-col">
+            <Progress
+              percent={Number(
+                ((total / Number(record.limit)) * 100).toFixed(2),
+              )}
+            />
+            <div className="italic text-xs opacity-70">
+              {IDRFormat(total)} | {IDRFormat(Number(record.limit))}
+            </div>
+            <div className="italic text-xs opacity-70 text-center">
+              OS {IDRFormat(os)}
             </div>
           </div>
         );
@@ -310,7 +354,9 @@ function UpsertSumdan({
     const { ProdukPembiayaan, ...saved } = data;
     await fetch("/api/sumdan", {
       method: record ? "PUT" : "POST",
-      body: JSON.stringify(saved),
+      body: JSON.stringify(
+        serializeForApi({ ...saved, limit: Number(saved.limit) }),
+      ),
     })
       .then((res) => res.json())
       .then(async (res) => {
@@ -393,6 +439,16 @@ function UpsertSumdan({
           />
           <FormInput
             data={{
+              label: "Email",
+              mode: "horizontal",
+              required: true,
+              type: "text",
+              value: data.email,
+              onChange: (e: string) => setData({ ...data, email: e }),
+            }}
+          />
+          <FormInput
+            data={{
               label: "Alamat",
               mode: "horizontal",
               required: true,
@@ -422,7 +478,7 @@ function UpsertSumdan({
           />
           <FormInput
             data={{
-              label: "Biaya Tabungan",
+              label: "Biaya Buka Rekening",
               mode: "horizontal",
               type: "text",
               value: IDRFormat(data.c_account || 0),
@@ -484,9 +540,30 @@ function UpsertSumdan({
               label: "Limit Pembiayaan",
               mode: "horizontal",
               type: "text",
-              value: IDRFormat(data.limit || 0),
+              value: IDRFormat(Number(data.limit) || 0),
               onChange: (e: any) =>
-                setData({ ...data, limit: IDRToNumber(e || "0") }),
+                setData({ ...data, limit: BigInt(IDRToNumber(e || "0")) }),
+            }}
+          />
+          <FormInput
+            data={{
+              label: "No SK",
+              mode: "horizontal",
+              required: true,
+              type: "text",
+              value: data.sk_no,
+              onChange: (e: string) => setData({ ...data, sk_no: e }),
+            }}
+          />
+          <FormInput
+            data={{
+              label: "Tanggal SK",
+              mode: "horizontal",
+              required: true,
+              type: "date",
+              value: moment(data.sk_date).format("YYYY-MM-DD"),
+              onChange: (e: string) =>
+                setData({ ...data, sk_date: new Date(e) }),
             }}
           />
           <FormInput
@@ -592,30 +669,6 @@ export function DeleteSumdan({
     </Modal>
   );
 }
-
-const defaultSumdan: ISumdan = {
-  id: "",
-  name: "",
-  code: "",
-  address: null,
-  phone: null,
-  description: null,
-  logo: null,
-  tbo: 3,
-  rounded: 1000,
-  c_margin: 0,
-  c_adm: 0,
-  limit: 0,
-  dsr: 0,
-  c_gov: 0,
-  c_account: 0,
-  c_stamps: 0,
-  ProdukPembiayaan: [],
-
-  status: true,
-  created_at: new Date(),
-  updated_at: new Date(),
-};
 
 function TableProduk({
   records,
@@ -915,6 +968,7 @@ function UpsertProduk({
               type: "number",
               required: true,
               value: data.c_margin,
+              suffix: `${sumdan.c_margin + data.c_margin}%`,
               onChange: (e: any) =>
                 setData({ ...data, c_margin: parseFloat(e) }),
             }}
@@ -926,6 +980,7 @@ function UpsertProduk({
               type: "number",
               required: true,
               value: data.c_adm,
+              suffix: `${sumdan.c_adm + data.c_adm}%`,
               onChange: (e: any) => setData({ ...data, c_adm: parseFloat(e) }),
             }}
           />
@@ -1041,4 +1096,31 @@ const defaultProduk: ProdukPembiayaan = {
   created_at: new Date(),
   updated_at: new Date(),
   sumdanId: "",
+};
+
+const defaultSumdan: ISumdan = {
+  id: "",
+  name: "",
+  code: "",
+  address: null,
+  phone: null,
+  email: null,
+  description: null,
+  logo: null,
+  tbo: 3,
+  rounded: 1000,
+  c_margin: 0,
+  c_adm: 0,
+  limit: BigInt(0),
+  dsr: 0,
+  c_gov: 0,
+  c_account: 0,
+  c_stamps: 0,
+  sk_no: "",
+  sk_date: new Date(),
+  ProdukPembiayaan: [],
+
+  status: true,
+  created_at: new Date(),
+  updated_at: new Date(),
 };

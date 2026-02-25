@@ -1,4 +1,6 @@
+import { serializeForApi } from "@/components/utils/PembiayaanUtil";
 import { getSession } from "@/libs/Auth";
+import { IDropping } from "@/libs/IInterfaces";
 import prisma from "@/libs/Prisma";
 import moment from "moment";
 import { NextRequest, NextResponse } from "next/server";
@@ -106,7 +108,73 @@ export const GET = async (req: NextRequest) => {
 
   return NextResponse.json({
     status: 200,
-    data: find,
+    data: serializeForApi(find),
     total: total,
   });
+};
+
+export const PUT = async (req: NextRequest) => {
+  const data: IDropping = await req.json();
+
+  try {
+    const { Dapem, Sumdan, ...saved } = data;
+    await prisma.$transaction(async (tx) => {
+      await tx.dropping.update({ where: { id: data.id }, data: saved });
+      for (const dpm of Dapem) {
+        const {
+          ProdukPembiayaan,
+          JenisPembiayaan,
+          AO,
+          CreatedBy,
+          Debitur,
+          Angsuran,
+          Berkas,
+          Jaminan,
+          Dropping,
+          Pelunasan,
+          ...dpmData
+        } = dpm;
+        await prisma.dapem.update({ where: { id: dpm.id }, data: dpmData });
+      }
+    });
+    return NextResponse.json(
+      {
+        msg: "Data Pencairan berhasil diperbarui.",
+        status: 200,
+      },
+      { status: 200 },
+    );
+  } catch (err) {
+    console.log(err);
+    return NextResponse.json(
+      { msg: "Internal Server Error", status: 500 },
+      { status: 500 },
+    );
+  }
+};
+
+export const DELETE = async (req: NextRequest) => {
+  const id = req.nextUrl.searchParams.get("id");
+  if (!id)
+    return NextResponse.json(
+      { status: 404, msg: "Not found!" },
+      { status: 404 },
+    );
+
+  const find = await prisma.dropping.findFirst({
+    where: { id },
+    include: { Dapem: true },
+  });
+  if (find) {
+    await prisma.$transaction(async (tx) => {
+      await tx.dapem.updateMany({
+        where: { droppingId: id },
+        data: { droppingId: null },
+      });
+      await tx.dropping.delete({ where: { id } });
+      return true;
+    });
+  }
+
+  return NextResponse.json({ msg: "OK", status: 200 }, { status: 200 });
 };

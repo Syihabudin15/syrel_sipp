@@ -1,11 +1,21 @@
 "use client";
 
-import { Divider, Modal, Tabs } from "antd";
+import { Divider, Modal, Steps, StepsProps, Tabs } from "antd";
 import Link from "next/link";
+import moment from "moment";
 import { IDapem, IViewFiles } from "@/libs/IInterfaces";
 import { FormInput } from "..";
-import moment from "moment";
 import { GetAngsuran, GetBiaya, GetFullAge, IDRFormat } from "./PembiayaanUtil";
+import {
+  DollarCircleOutlined,
+  FolderOpenOutlined,
+  KeyOutlined,
+  LoadingOutlined,
+  MoneyCollectOutlined,
+  PayCircleOutlined,
+  SecurityScanOutlined,
+  SwapOutlined,
+} from "@ant-design/icons";
 
 export const NotifItem = ({
   name,
@@ -67,12 +77,20 @@ export const ViewFiles = ({
       width={1200}
       footer={[]}
     >
-      <Tabs items={items} />
+      <Tabs items={items} destroyOnHidden />
     </Modal>
   );
 };
 
-export const TabsFiles = ({ data }: { data: IViewFiles }) => {
+export const TabsFiles = ({
+  data,
+  allowprogres,
+  dapem,
+}: {
+  data: IViewFiles;
+  allowprogres?: boolean;
+  dapem?: IDapem;
+}) => {
   const items = data.data.map((d, i) => ({
     key: d.url + i,
     label: d.name,
@@ -98,17 +116,35 @@ export const TabsFiles = ({ data }: { data: IViewFiles }) => {
       </div>
     ),
   }));
-  return <Tabs items={items} />;
+  return (
+    <Tabs
+      items={[
+        ...items,
+        ...(allowprogres && dapem
+          ? [
+              {
+                key: "progress",
+                label: "PROGRESS",
+                children: <ProgressDapem dapem={dapem} />,
+              },
+            ]
+          : []),
+      ]}
+      destroyOnHidden
+    />
+  );
 };
 
 export const DetailDapem = ({
   open,
   setOpen,
   data,
+  allowprogres,
 }: {
   open: boolean;
   setOpen: Function;
   data: IDapem;
+  allowprogres?: boolean;
 }) => {
   const angsReal = GetAngsuran(
     data.plafond,
@@ -131,6 +167,7 @@ export const DetailDapem = ({
     data.margin_type,
     data.rounded,
   ).angsuran;
+
   return (
     <Modal
       open={open}
@@ -477,6 +514,7 @@ export const DetailDapem = ({
                   value: data.aw_name,
                 }}
               />
+
               <FormInput
                 data={{
                   label: "Nomor NIK",
@@ -495,6 +533,26 @@ export const DetailDapem = ({
                   class: "flex-1",
                   disabled: true,
                   value: `${data.aw_birthplace}, ${moment(data.aw_birthdate).format("DD-MM-YYYY")}`,
+                }}
+              />
+              <FormInput
+                data={{
+                  label: "Pekerjaan",
+                  mode: "vertical",
+                  type: "text",
+                  class: "flex-1",
+                  disabled: true,
+                  value: `${data.aw_job}`,
+                }}
+              />
+              <FormInput
+                data={{
+                  label: "Alamat",
+                  mode: "vertical",
+                  type: "textarea",
+                  class: "flex-1",
+                  disabled: true,
+                  value: `${data.address}`,
                 }}
               />
               <FormInput
@@ -522,16 +580,6 @@ export const DetailDapem = ({
               />
               <FormInput
                 data={{
-                  label: "Hubungan",
-                  mode: "vertical",
-                  type: "text",
-                  class: "flex-1",
-                  disabled: true,
-                  value: data.f_relate,
-                }}
-              />
-              <FormInput
-                data={{
                   label: "Nomor Telepon",
                   mode: "vertical",
                   type: "text",
@@ -548,6 +596,16 @@ export const DetailDapem = ({
                   class: "flex-1",
                   disabled: true,
                   value: data.f_address,
+                }}
+              />
+              <FormInput
+                data={{
+                  label: "Hubungan",
+                  mode: "vertical",
+                  type: "text",
+                  class: "flex-1",
+                  disabled: true,
+                  value: data.f_relate,
                 }}
               />
             </div>
@@ -983,9 +1041,144 @@ export const DetailDapem = ({
                 { name: "AKAD", url: data.file_contract || "" },
               ],
             }}
+            allowprogres={allowprogres}
+            dapem={data}
           />
         </div>
       </div>
     </Modal>
   );
+};
+
+const ProgressDapem = ({ dapem }: { dapem: IDapem }) => {
+  const items: StepsProps["items"] = [
+    {
+      title: (
+        <div>
+          Dropping{" "}
+          {["PENDING", "PROCCESS"].includes(dapem.dropping_status) && (
+            <LoadingOutlined />
+          )}
+        </div>
+      ),
+      icon: <DollarCircleOutlined />,
+      content: `Status Data Pembiayaan ${dapem.id} ${dapem.dropping_status}`,
+      status: ["APPROVED", "PAID_OFF"].includes(dapem.dropping_status)
+        ? "finish"
+        : ["REJECTED", "CANCEL"].includes(dapem.dropping_status)
+          ? "error"
+          : dapem.dropping_status === "DRAFT"
+            ? "wait"
+            : "process",
+    },
+    {
+      title: (
+        <div>
+          Takeover{" "}
+          {["PENDING", "PROCCESS"].includes(dapem.takeover_status) && (
+            <LoadingOutlined />
+          )}
+        </div>
+      ),
+      icon: <PayCircleOutlined />,
+      content: `Status Takeover Data Pembiayaan ${dapem.id} ${dapem.takeover_status}`,
+      status: ["APPROVED", "PAID_OFF"].includes(dapem.takeover_status)
+        ? "finish"
+        : ["REJECTED", "CANCEL"].includes(dapem.takeover_status)
+          ? "error"
+          : dapem.takeover_status === "DRAFT"
+            ? "wait"
+            : "process",
+    },
+    {
+      title: (
+        <div>
+          Mutasi{" "}
+          {["PENDING", "PROCCESS"].includes(dapem.mutasi_status) && (
+            <LoadingOutlined />
+          )}
+        </div>
+      ),
+      icon: <SwapOutlined />,
+      content: `Status Mutasi Data Pembiayaan ${dapem.id} ${dapem.mutasi_status}`,
+      status: ["APPROVED", "PAID_OFF"].includes(dapem.mutasi_status)
+        ? "finish"
+        : ["REJECTED", "CANCEL"].includes(dapem.mutasi_status)
+          ? "error"
+          : dapem.mutasi_status === "DRAFT"
+            ? "wait"
+            : "process",
+    },
+    {
+      title: (
+        <div>
+          Flagging{" "}
+          {["PENDING", "PROCCESS"].includes(dapem.flagging_status) && (
+            <LoadingOutlined />
+          )}
+        </div>
+      ),
+      icon: <KeyOutlined />,
+      content: `Status Flagging Data Pembiayaan ${dapem.id} ${dapem.flagging_status}`,
+      status: ["APPROVED", "PAID_OFF"].includes(dapem.flagging_status)
+        ? "finish"
+        : ["REJECTED", "CANCEL"].includes(dapem.flagging_status)
+          ? "error"
+          : dapem.flagging_status === "DRAFT"
+            ? "wait"
+            : "process",
+    },
+    {
+      title: (
+        <div>
+          Terima Bersih{" "}
+          {["PENDING", "PROCCESS"].includes(dapem.cash_status) && (
+            <LoadingOutlined />
+          )}
+        </div>
+      ),
+      icon: <MoneyCollectOutlined />,
+      content: `Status Terima Bersih Data Pembiayaan ${dapem.id} ${dapem.cash_status}`,
+      status: ["APPROVED", "PAID_OFF"].includes(dapem.cash_status)
+        ? "finish"
+        : ["REJECTED", "CANCEL"].includes(dapem.cash_status)
+          ? "error"
+          : dapem.cash_status === "DRAFT"
+            ? "wait"
+            : "process",
+    },
+    {
+      title: (
+        <div>
+          Penyerahan Berkas{" "}
+          {["DELIVERY"].includes(dapem.document_status) && <LoadingOutlined />}
+        </div>
+      ),
+      icon: <FolderOpenOutlined />,
+      content: `Status Penyerahan Berkas Data Pembiayaan ${dapem.id} ${dapem.document_status}`,
+      status:
+        dapem.document_status === "MITRA"
+          ? "finish"
+          : dapem.document_status === "DELIVERY"
+            ? "process"
+            : "wait",
+    },
+    {
+      title: (
+        <div>
+          Penyerahan Jaminan{" "}
+          {["DELIVERY"].includes(dapem.guarantee_status) && <LoadingOutlined />}
+        </div>
+      ),
+      icon: <SecurityScanOutlined />,
+      content: `Status Penyerahan Jaminan Data Pembiayaan ${dapem.id} ${dapem.guarantee_status} | TBO ${moment(dapem.date_contract).add(dapem.tbo, "month").format("DD/MM/YYYY")}`,
+      status:
+        dapem.guarantee_status === "MITRA"
+          ? "finish"
+          : dapem.guarantee_status === "DELIVERY"
+            ? "process"
+            : "wait",
+    },
+  ];
+  return <Steps items={items} size="small" orientation="vertical" />;
 };

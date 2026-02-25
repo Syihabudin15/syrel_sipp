@@ -1,18 +1,28 @@
 import {
   BankOutlined,
+  BarChartOutlined,
+  BookOutlined,
   BorderOuterOutlined,
   BranchesOutlined,
   CalculatorOutlined,
   DashboardOutlined,
+  DatabaseOutlined,
+  DiffOutlined,
+  DollarCircleOutlined,
   FileProtectOutlined,
+  FolderOpenOutlined,
   KeyOutlined,
   MoneyCollectOutlined,
+  PercentageOutlined,
+  PieChartOutlined,
   ReadOutlined,
   RobotOutlined,
+  SecurityScanOutlined,
   SettingOutlined,
-  TableOutlined,
+  SlidersOutlined,
+  SnippetsOutlined,
   TeamOutlined,
-  VerifiedOutlined,
+  TransactionOutlined,
 } from "@ant-design/icons";
 
 export interface IMenu {
@@ -31,6 +41,12 @@ export const listMenuUI: IMenuType[] = [
     key: "/dashboard",
     icon: <DashboardOutlined />,
     needaccess: false,
+  },
+  {
+    label: "Dashboard Bisnis",
+    key: "/dashboardbis",
+    icon: <DashboardOutlined />,
+    needaccess: true,
   },
   {
     label: "Simulasi Pembiayaan",
@@ -69,6 +85,128 @@ export const listMenuUI: IMenuType[] = [
         needaccess: true,
       },
     ],
+  },
+  {
+    label: "Dropping Pembiayaan",
+    key: "/pencairan",
+    icon: <TransactionOutlined />,
+    needaccess: true,
+    children: [
+      {
+        label: "Cetak SI",
+        key: "/pencairan/print",
+        icon: <DiffOutlined />,
+        needaccess: true,
+      },
+      {
+        label: "Permohonan Dropping",
+        key: "/pencairan/dropping",
+        icon: <DollarCircleOutlined />,
+        needaccess: true,
+      },
+    ],
+  },
+  {
+    label: "Sending Document",
+    key: "/ttpb",
+    icon: <FolderOpenOutlined />,
+    needaccess: true,
+    children: [
+      {
+        label: "Cetak SD",
+        key: "/ttpb/print",
+        icon: <DiffOutlined />,
+        needaccess: true,
+      },
+      {
+        label: "Permohonan SD",
+        key: "/ttpb/dropping",
+        icon: <FolderOpenOutlined />,
+        needaccess: true,
+      },
+    ],
+  },
+  {
+    label: "Sending Jaminan",
+    key: "/ttpj",
+    icon: <SecurityScanOutlined />,
+    needaccess: true,
+    children: [
+      {
+        label: "Cetak TPPJ",
+        key: "/ttpj/print",
+        icon: <DiffOutlined />,
+        needaccess: true,
+      },
+      {
+        label: "Permohonan TPPJ",
+        key: "/ttpj/dropping",
+        icon: <SecurityScanOutlined />,
+        needaccess: true,
+      },
+    ],
+  },
+  {
+    label: "Daftar Nominatif",
+    key: "/nominatif",
+    icon: <FileProtectOutlined />,
+    needaccess: true,
+  },
+  {
+    label: "Tagihan",
+    key: "/tagihan",
+    icon: <MoneyCollectOutlined />,
+    needaccess: true,
+  },
+  {
+    label: "Data Debitur",
+    key: "/debitur",
+    icon: <BookOutlined />,
+    needaccess: true,
+  },
+  {
+    label: "Pelunasan Debitur",
+    key: "/pelunasan",
+    icon: <MoneyCollectOutlined />,
+    needaccess: true,
+  },
+  {
+    label: "Laporan Keuangan",
+    key: "/lapkeu",
+    icon: <PieChartOutlined />,
+    needaccess: true,
+    children: [
+      {
+        label: "Chart Of Account",
+        key: "/lapkeu/coa",
+        icon: <SnippetsOutlined />,
+        needaccess: true,
+      },
+      {
+        label: "Neraca",
+        key: "/lapkeu/neraca",
+        icon: <BarChartOutlined />,
+        needaccess: true,
+      },
+      {
+        label: "Neraca Rugilaba",
+        key: "/lapkeu/neraca-rugilaba",
+        icon: <PercentageOutlined />,
+        needaccess: true,
+      },
+      {
+        label: "Rugilaba",
+        key: "/lapkeu/rugilaba",
+        icon: <SlidersOutlined />,
+        needaccess: true,
+      },
+    ],
+  },
+  {
+    label: "Database",
+    key: "/database",
+    icon: <DatabaseOutlined />,
+    needaccess: true,
   },
   {
     label: "Profile Setting",
@@ -122,6 +260,10 @@ export const listMenuServer: { key: string; needaccess: boolean }[] = [
     needaccess: false,
   },
   {
+    key: "/dashboardbis",
+    needaccess: true,
+  },
+  {
     key: "/simulasi",
     needaccess: true,
   },
@@ -130,14 +272,85 @@ export const listMenuServer: { key: string; needaccess: boolean }[] = [
     needaccess: true,
   },
   {
-    key: "/users",
+    key: "/proses/verif",
+    needaccess: true,
+  },
+  {
+    key: "/proses/slik",
+    needaccess: true,
+  },
+  {
+    key: "/proses/approv",
+    needaccess: true,
+  },
+  {
+    key: "/pencairan/print",
+    needaccess: true,
+  },
+  {
+    key: "/pencairan/dropping",
+    needaccess: true,
+  },
+  {
+    key: "/tppb/print",
+    needaccess: true,
+  },
+  {
+    key: "/tppb/dropping",
+    needaccess: true,
+  },
+  {
+    key: "/tppj/print",
+    needaccess: true,
+  },
+  {
+    key: "/tppj/dropping",
+    needaccess: true,
+  },
+  {
+    key: "/nominatif",
+    needaccess: true,
+  },
+  {
+    key: "/tagihan",
+    needaccess: true,
+  },
+  {
+    key: "/debitur",
+    needaccess: true,
+  },
+  {
+    key: "/pelunasan",
+    needaccess: true,
+  },
+  {
+    key: "/lapkeu/coa",
+    needaccess: true,
+  },
+  {
+    key: "/lapkeu/neraca",
+    needaccess: true,
+  },
+  {
+    key: "/lapkeu/neraca-rugilaba",
+    needaccess: true,
+  },
+  {
+    key: "/lapkeu/rugilaba",
+    needaccess: true,
+  },
+  {
+    key: "/database",
+    needaccess: true,
+  },
+  {
+    key: "/master/users",
     needaccess: true,
   },
   {
     key: "/profile",
     needaccess: false,
   },
-
   {
     key: "/master/roles",
     needaccess: true,

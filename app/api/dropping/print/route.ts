@@ -1,7 +1,6 @@
-import { GetRoman } from "@/components/utils/PembiayaanUtil";
+import { GetRoman, serializeForApi } from "@/components/utils/PembiayaanUtil";
 import { IDropping } from "@/libs/IInterfaces";
 import prisma from "@/libs/Prisma";
-import moment from "moment";
 import { NextRequest, NextResponse } from "next/server";
 
 export const GET = async (req: NextRequest) => {
@@ -20,7 +19,7 @@ export const GET = async (req: NextRequest) => {
             include: {
               Debitur: true,
               JenisPembiayaan: true,
-              ProdukPembiayaan: true,
+              ProdukPembiayaan: { include: { Sumdan: true } },
             },
             where: { dropping_status: "PROCCESS", droppingId: null },
             orderBy: { created_at: "desc" },
@@ -44,7 +43,7 @@ export const GET = async (req: NextRequest) => {
 
   return NextResponse.json({
     status: 200,
-    data: newData,
+    data: serializeForApi(newData),
     total: total,
   });
 };
@@ -62,6 +61,7 @@ export const POST = async (req: NextRequest) => {
           data: { droppingId: drop.id },
         });
       }
+      return true;
     });
 
     return NextResponse.json(

@@ -11,6 +11,8 @@ export const GET = async (request: NextRequest) => {
   const limit = request.nextUrl.searchParams.get("limit") || "50";
   const search = request.nextUrl.searchParams.get("search") || "";
   const roleId = request.nextUrl.searchParams.get("roleId") || "";
+  const pkwt_status = request.nextUrl.searchParams.get("pkwt_status") || "";
+  const position = request.nextUrl.searchParams.get("position") || "";
   const skip = (parseInt(page) - 1) * parseInt(limit);
 
   const session = await getSession();
@@ -28,10 +30,15 @@ export const GET = async (request: NextRequest) => {
           { username: { contains: search } },
           { email: { contains: search } },
           { phone: { contains: search } },
+          { nip: { contains: search } },
+          { nik: { contains: search } },
+          { id: { contains: search } },
         ],
       }),
       ...(roleId && { roleId: roleId }),
       ...(user.sumdanId && { sumdanId: user.sumdanId }),
+      ...(pkwt_status && { pkwt_status: pkwt_status }),
+      ...(position && { position: position }),
       status: true,
     },
     skip: skip,
@@ -56,10 +63,15 @@ export const GET = async (request: NextRequest) => {
           { username: { contains: search } },
           { email: { contains: search } },
           { phone: { contains: search } },
+          { nip: { contains: search } },
+          { nik: { contains: search } },
+          { id: { contains: search } },
         ],
       }),
       ...(roleId && { roleId: roleId }),
       ...(user.sumdanId && { sumdanId: user.sumdanId }),
+      ...(pkwt_status && { pkwt_status: pkwt_status }),
+      ...(position && { position: position }),
       status: true,
     },
   });
@@ -150,6 +162,58 @@ export const DELETE = async (request: NextRequest) => {
       status: 500,
       msg: "Gagal menghapus data user. internal server error.",
     });
+  }
+};
+
+export const PATCH = async (request: NextRequest) => {
+  const body: {
+    id: string;
+    password: string;
+    newPassword: string;
+    confirmPassword: string;
+  } = await request.json();
+  try {
+    const find = await prisma.user.findFirst({ where: { id: body.id } });
+
+    if (!find) {
+      return NextResponse.json(
+        {
+          status: 404,
+          msg: "Gagal ganti password, User tidak ditemukan!",
+        },
+        { status: 404 },
+      );
+    }
+    const verify = await bcrypt.compare(body.password, find.password);
+    if (!verify) {
+      return NextResponse.json(
+        {
+          status: 400,
+          msg: "Password lama salah!!",
+        },
+        { status: 400 },
+      );
+    }
+
+    const newPass = await bcrypt.hash(body.confirmPassword, 10);
+
+    await prisma.user.update({
+      where: { id: body.id },
+      data: { password: newPass, updated_at: new Date() },
+    });
+    return NextResponse.json({
+      status: 200,
+      msg: "Update password berhasil!.",
+    });
+  } catch (err) {
+    console.log(err);
+    return NextResponse.json(
+      {
+        status: 500,
+        msg: "Gagal memperbarui password. internal server error.",
+      },
+      { status: 500 },
+    );
   }
 };
 

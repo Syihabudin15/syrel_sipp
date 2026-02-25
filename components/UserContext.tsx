@@ -34,6 +34,14 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
             cabang: res.data.cabang,
             sumdanId: res.data.sumdanId || null,
             cabangId: res.data.cabangId,
+            salary: res.data.salary,
+            t_transport: res.data.t_transport,
+            t_position: res.data.r_position,
+            ptkp: res.data.ptkp,
+            start_pkwt: res.data.start_pkwt,
+            end_pkwt: res.data.end_pkwt,
+            pkwt_status: res.data.pkwt_status,
+            nik: res.data.nik,
           });
           if (pathname === "/") {
             window && window.location.replace("/dashboard");

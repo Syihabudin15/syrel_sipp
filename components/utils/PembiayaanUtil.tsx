@@ -58,10 +58,13 @@ export const GetAngsuran = (
   rounded: number,
 ) => {
   if (type === "FLAT") {
+    const pokok = plafond / tenor;
+    const margin = (plafond * (bunga / 100)) / 12;
+    const angsuran = pokok + margin;
     return {
-      pokok: 0,
-      margin: 0,
-      angsuran: 0,
+      pokok,
+      margin,
+      angsuran: Math.ceil(angsuran / rounded) * rounded,
     };
   } else if (type === "ANUITAS") {
     const r = bunga / 12 / 100;
@@ -109,4 +112,10 @@ export function GetRoman(number: number): string {
     "XII",
   ];
   return romawi[number - 1] || "";
+}
+
+export function serializeForApi<T>(data: T): T {
+  return JSON.parse(
+    JSON.stringify(data, (_, v) => (typeof v === "bigint" ? v.toString() : v)),
+  );
 }

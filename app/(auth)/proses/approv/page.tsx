@@ -1,7 +1,11 @@
 "use client";
 
 import { useUser } from "@/components/UserContext";
-import { GetStatusTag, ProsesPembiayaan } from "@/components/utils/CompUtils";
+import {
+  FilterData,
+  GetStatusTag,
+  ProsesPembiayaan,
+} from "@/components/utils/CompUtils";
 import { DetailDapem } from "@/components/utils/LayoutUtils";
 import { GetAngsuran, IDRFormat } from "@/components/utils/PembiayaanUtil";
 import { IActionTable, IDapem, IDesc, IPageProps } from "@/libs/IInterfaces";
@@ -64,7 +68,7 @@ export default function Page() {
     const params = new URLSearchParams();
     params.append("page", pageProps.page.toString());
     params.append("limit", pageProps.limit.toString());
-    params.append("approv_status", pageProps.approv_status || "PENDING");
+    params.append("approv_status", pageProps.approv_status || "all");
 
     if (pageProps.search) params.append("search", pageProps.search);
     if (pageProps.sumdanId) params.append("sumdanId", pageProps.sumdanId);
@@ -356,17 +360,17 @@ export default function Page() {
                 setSelected({ ...selected, upsert: true, selected: record })
               }
             ></Button>
-            {hasAccess("proses") && (
-              <Button
-                size="small"
-                type="primary"
-                icon={<FormOutlined />}
-                onClick={() =>
-                  setSelected({ ...selected, proses: true, selected: record })
-                }
-              ></Button>
-            )}
           </Tooltip>
+          {hasAccess("proses") && (
+            <Button
+              size="small"
+              type="primary"
+              icon={<FormOutlined />}
+              onClick={() =>
+                setSelected({ ...selected, proses: true, selected: record })
+              }
+            ></Button>
+          )}
         </div>
       ),
     },
@@ -383,44 +387,72 @@ export default function Page() {
     >
       <div className="flex justify-between my-1 gap-2 overflow-auto">
         <div className="flex gap-2">
-          <RangePicker
-            size="small"
-            onChange={(date, dateStr) =>
-              setPageProps({ ...pageProps, backdate: dateStr })
+          <FilterData
+            children={
+              <>
+                <div className="my-2">
+                  <p>Periode :</p>
+                  <RangePicker
+                    size="small"
+                    onChange={(date, dateStr) =>
+                      setPageProps({ ...pageProps, backdate: dateStr })
+                    }
+                    style={{ width: "100%" }}
+                  />
+                </div>
+                {user && !user.sumdanId && (
+                  <div className="my-2">
+                    <p>Mitra pembiayaan :</p>
+                    <Select
+                      size="small"
+                      placeholder="Pilih Mitra..."
+                      options={sumdans.map((s) => ({
+                        label: s.code,
+                        value: s.id,
+                      }))}
+                      onChange={(e) =>
+                        setPageProps({ ...pageProps, sumdanId: e })
+                      }
+                      allowClear
+                      style={{ width: "100%" }}
+                    />
+                  </div>
+                )}
+                <div className="my-2">
+                  <p>Jenis pembiayaan :</p>
+                  <Select
+                    size="small"
+                    placeholder="Pilih Jenis..."
+                    options={jeniss.map((s) => ({
+                      label: s.name,
+                      value: s.id,
+                    }))}
+                    onChange={(e) =>
+                      setPageProps({ ...pageProps, jenisPembiayaanId: e })
+                    }
+                    allowClear
+                    style={{ width: "100%" }}
+                  />
+                </div>
+                <div className="my-2">
+                  <p>Status pembiayaan</p>
+                  <Select
+                    size="small"
+                    placeholder="Pilih Status..."
+                    options={[
+                      { label: "PENDING", value: "PENDING" },
+                      { label: "APPROVED", value: "APPROVED" },
+                      { label: "REJECTED", value: "REJECTED" },
+                    ]}
+                    onChange={(e) =>
+                      setPageProps({ ...pageProps, approv_status: e })
+                    }
+                    allowClear
+                    style={{ width: "100%" }}
+                  />
+                </div>
+              </>
             }
-            style={{ width: 170 }}
-          />
-          {user && !user.sumdanId && (
-            <Select
-              size="small"
-              placeholder="Pilih Mitra..."
-              options={sumdans.map((s) => ({ label: s.code, value: s.id }))}
-              onChange={(e) => setPageProps({ ...pageProps, sumdanId: e })}
-              allowClear
-              style={{ width: 170 }}
-            />
-          )}
-          <Select
-            size="small"
-            placeholder="Pilih Jenis..."
-            options={jeniss.map((s) => ({ label: s.name, value: s.id }))}
-            onChange={(e) =>
-              setPageProps({ ...pageProps, jenisPembiayaanId: e })
-            }
-            allowClear
-            style={{ width: 170 }}
-          />
-          <Select
-            size="small"
-            placeholder="Pilih Status..."
-            options={[
-              { label: "Antri (PENDING)", value: "PENDING" },
-              { label: "Ditolak (REJECTED)", value: "REJECTED" },
-              { label: "Disetuju (APPROVED)", value: "APPROVED" },
-            ]}
-            onChange={(e) => setPageProps({ ...pageProps, approv_status: e })}
-            allowClear
-            style={{ width: 170 }}
           />
         </div>
         <Input.Search

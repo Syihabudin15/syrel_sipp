@@ -1,8 +1,12 @@
 "use client";
 
 import { FormInput, ViewFiles } from "@/components";
+import { printContract } from "@/components/pdfutils/akad/Akad";
+import { printMonitoring } from "@/components/pdfutils/etc/printMonitoring";
 import { useUser } from "@/components/UserContext";
 import {
+  ExportToExcel,
+  FilterData,
   GetDroppingStatusTag,
   GetStatusTag,
 } from "@/components/utils/CompUtils";
@@ -382,11 +386,6 @@ export default function Page() {
                   icon={<PrinterOutlined />}
                   type="primary"
                   size="small"
-                  // disabled={
-                  //   !["APPROVED", "PAID_OFF", "PROCCESS"].includes(
-                  //     record.dropping_status,
-                  //   )
-                  // }
                   onClick={() =>
                     setSelected({
                       ...selected,
@@ -397,16 +396,12 @@ export default function Page() {
                 ></Button>
               )}
             </div>
-            {record.no_contract && <div>{record.no_contract}</div>}
-            {record.date_contract && (
-              <div>{moment(record.date_contract).format("DD/MM/YYYY")}</div>
-            )}
           </div>
         );
       },
     },
     {
-      title: "Data Akad",
+      title: "Nomor Akad",
       dataIndex: "dataakad",
       key: "dataakad",
       render(value, record, index) {
@@ -533,57 +528,131 @@ export default function Page() {
               </Button>
             </Link>
           )}
-          <RangePicker
-            size="small"
-            onChange={(date, dateStr) =>
-              setPageProps({ ...pageProps, backdate: dateStr })
+          <FilterData
+            children={
+              <>
+                <div className="my-2">
+                  <p>Periode :</p>
+                  <RangePicker
+                    size="small"
+                    onChange={(date, dateStr) =>
+                      setPageProps({ ...pageProps, backdate: dateStr })
+                    }
+                    style={{ width: "100%" }}
+                  />
+                </div>
+                {user && !user.sumdanId && (
+                  <div className="my-2">
+                    <p>Mitra pembiayaan :</p>
+                    <Select
+                      size="small"
+                      placeholder="Pilih Mitra..."
+                      options={sumdans.map((s) => ({
+                        label: s.code,
+                        value: s.id,
+                      }))}
+                      onChange={(e) =>
+                        setPageProps({ ...pageProps, sumdanId: e })
+                      }
+                      allowClear
+                      style={{ width: "100%" }}
+                    />
+                  </div>
+                )}
+                <div className="my-2">
+                  <p>Jenis pembiayaan :</p>
+                  <Select
+                    size="small"
+                    placeholder="Pilih Jenis..."
+                    options={jeniss.map((s) => ({
+                      label: s.name,
+                      value: s.id,
+                    }))}
+                    onChange={(e) =>
+                      setPageProps({ ...pageProps, jenisPembiayaanId: e })
+                    }
+                    allowClear
+                    style={{ width: "100%" }}
+                  />
+                </div>
+                <div className="my-2">
+                  <p>Status pembiayaan</p>
+                  <Select
+                    size="small"
+                    placeholder="Pilih Status..."
+                    options={[
+                      { label: "Saved", value: "DRAFT" },
+                      { label: "Antri", value: "PENDING" },
+                      { label: "Proses", value: "PROCCESS" },
+                      { label: "Dropping", value: "APPROVED" },
+                      { label: "Batal", value: "CANCEL" },
+                      { label: "Lunas", value: "PAID_OFF" },
+                      { label: "Final", value: "final" },
+                    ]}
+                    onChange={(e) =>
+                      setPageProps({ ...pageProps, dropping_status: e })
+                    }
+                    allowClear
+                    style={{ width: "100%" }}
+                  />
+                </div>
+              </>
             }
-            style={{ width: 170 }}
-          />
-          {user && !user.sumdanId && (
-            <Select
-              size="small"
-              placeholder="Pilih Mitra..."
-              options={sumdans.map((s) => ({ label: s.code, value: s.id }))}
-              onChange={(e) => setPageProps({ ...pageProps, sumdanId: e })}
-              allowClear
-              style={{ width: 170 }}
-            />
-          )}
-          <Select
-            size="small"
-            placeholder="Pilih Jenis..."
-            options={jeniss.map((s) => ({ label: s.name, value: s.id }))}
-            onChange={(e) =>
-              setPageProps({ ...pageProps, jenisPembiayaanId: e })
-            }
-            allowClear
-            style={{ width: 170 }}
-          />
-          <Select
-            size="small"
-            placeholder="Pilih Status..."
-            options={[
-              { label: "Saved (DRAFT)", value: "DRAFT" },
-              { label: "Antri (PENDING)", value: "PENDING" },
-              { label: "Proses (PROCCESS)", value: "PROCCESS" },
-              { label: "Dropping (APPROVED)", value: "APPROVED" },
-              { label: "Batal (CANCEL)", value: "CANCEL" },
-              { label: "Lunas (PAID_OFF)", value: "PAID_OFF" },
-            ]}
-            onChange={(e) => setPageProps({ ...pageProps, dropping_status: e })}
-            allowClear
-            style={{ width: 170 }}
           />
         </div>
-        <Input.Search
-          size="small"
-          style={{ width: 170 }}
-          placeholder="Cari nama..."
-          onChange={(e) =>
-            setPageProps({ ...pageProps, search: e.target.value })
-          }
-        />
+        <div className="flex gap-2">
+          <Button
+            icon={<PrinterOutlined />}
+            size="small"
+            type="primary"
+            onClick={() =>
+              ExportToExcel(
+                [
+                  { sheetname: "alldata", data: pageProps.data },
+                  {
+                    sheetname: "antri",
+                    data: pageProps.data.filter((d) =>
+                      ["DRAFT", "PENDING"].includes(d.dropping_status),
+                    ),
+                  },
+                  {
+                    sheetname: "final",
+                    data: pageProps.data.filter((d) =>
+                      ["PROCCESS", "APPROVED"].includes(d.dropping_status),
+                    ),
+                  },
+                  {
+                    sheetname: "dropping",
+                    data: pageProps.data.filter(
+                      (d) => d.dropping_status === "APPROVED",
+                    ),
+                  },
+                ],
+                "monitoring",
+              )
+            }
+          >
+            Excel
+          </Button>
+          <Button
+            icon={<PrinterOutlined />}
+            size="small"
+            type="primary"
+            onClick={() =>
+              printMonitoring(pageProps.data, sumdans, pageProps.backdate)
+            }
+          >
+            PDF
+          </Button>
+          <Input.Search
+            size="small"
+            style={{ width: 170 }}
+            placeholder="Cari nama..."
+            onChange={(e) =>
+              setPageProps({ ...pageProps, search: e.target.value })
+            }
+          />
+        </div>
       </div>
 
       <Table
@@ -687,6 +756,7 @@ export default function Page() {
           }
           data={selected.selected}
           key={"detail" + selected.selected.id}
+          allowprogres
         />
       )}
       <ViewFiles
@@ -871,10 +941,8 @@ const PrintContractSubmission = ({
       .then(async (res) => {
         const { msg, status, data } = res;
         if (status === 200) {
-          hook.success({ content: msg });
           await getData();
-          // const { selected: sel } = selected;
-          // printContract({ ...sel, Angsuran: data } as IDapem);
+          printContract({ ...temp, Angsuran: data } as IDapem);
         } else {
           hook.error({ content: msg });
         }

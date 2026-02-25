@@ -1,3 +1,4 @@
+import { serializeForApi } from "@/components/utils/PembiayaanUtil";
 import { getSession } from "@/libs/Auth";
 import prisma from "@/libs/Prisma";
 import { NextRequest, NextResponse } from "next/server";
@@ -25,6 +26,8 @@ export const GET = async (request: NextRequest) => {
         OR: [
           { nopen: { contains: search } },
           { fullname: { contains: search } },
+          { account_number: { contains: search } },
+          { no_skep: { contains: search } },
         ],
       }),
       ...(address && {
@@ -34,6 +37,7 @@ export const GET = async (request: NextRequest) => {
           { district: { contains: address } },
           { city: { contains: address } },
           { province: { contains: address } },
+          { pos_code: { contains: address } },
         ],
       }),
       ...(group_skep && { group_skep: group_skep }),
@@ -42,13 +46,26 @@ export const GET = async (request: NextRequest) => {
         Dapem: { some: { ProdukPembiayaan: { sumdanId: user.sumdanId } } },
       }),
       ...(aktif && {
-        Dapem: { some: { dropping_status: { notIn: ["DRAFT", "CANCEL"] } } },
+        Dapem: {
+          some: {
+            dropping_status: {
+              in: ["PAID_OFF", "APPROVED", "PROCCESS"],
+            },
+            status: true,
+          },
+        },
       }),
     },
     skip: skip,
     take: parseInt(limit),
     include: {
       Dapem: {
+        where: {
+          dropping_status: {
+            in: ["PAID_OFF", "APPROVED", "PROCCESS"],
+          },
+          status: true,
+        },
         include: {
           ProdukPembiayaan: { include: { Sumdan: true } },
           JenisPembiayaan: true,
@@ -69,6 +86,8 @@ export const GET = async (request: NextRequest) => {
         OR: [
           { nopen: { contains: search } },
           { fullname: { contains: search } },
+          { account_number: { contains: search } },
+          { no_skep: { contains: search } },
         ],
       }),
       ...(address && {
@@ -78,6 +97,7 @@ export const GET = async (request: NextRequest) => {
           { district: { contains: address } },
           { city: { contains: address } },
           { province: { contains: address } },
+          { pos_code: { contains: address } },
         ],
       }),
       ...(group_skep && { group_skep: group_skep }),
@@ -86,14 +106,21 @@ export const GET = async (request: NextRequest) => {
         Dapem: { some: { ProdukPembiayaan: { sumdanId: user.sumdanId } } },
       }),
       ...(aktif && {
-        Dapem: { some: { dropping_status: { notIn: ["DRAFT", "CANCEL"] } } },
+        Dapem: {
+          some: {
+            dropping_status: {
+              in: ["PAID_OFF", "APPROVED", "PROCCESS"],
+            },
+            status: true,
+          },
+        },
       }),
     },
   });
 
   return NextResponse.json({
     status: 200,
-    data: find,
+    data: serializeForApi(find),
     total: total,
   });
 };
@@ -103,7 +130,7 @@ export const PATCH = async (request: NextRequest) => {
   if (!nopen) {
     return NextResponse.json(
       { status: 400, msg: "Tidak ada nopen dalam parameter!" },
-      { status: 400 }
+      { status: 400 },
     );
   }
 
@@ -113,11 +140,11 @@ export const PATCH = async (request: NextRequest) => {
   if (!find) {
     return NextResponse.json(
       { status: 404, msg: "Debitur dengan nopen tersebut tidak ditemukan!" },
-      { status: 404 }
+      { status: 404 },
     );
   }
   return NextResponse.json(
-    { status: 200, msg: "OK", data: find },
-    { status: 200 }
+    { status: 200, msg: "OK", data: serializeForApi(find) },
+    { status: 200 },
   );
 };

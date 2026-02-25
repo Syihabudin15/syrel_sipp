@@ -45,13 +45,14 @@ enum EDocStatus {
   UNIT
   DELIVERY
   PUSAT
-  SUMDAN
+  MITRA
 }
 
 enum ESettleStatus {
   MENINGGAL
   TOPUP
   LEPAS
+  JATUHTEMPO
 }
 
 model Role {
@@ -66,22 +67,25 @@ model Role {
 }
 
 model Sumdan {
-  id          String  @id @default(uuid())
+  id          String    @id @default(uuid())
   name        String
   code        String
-  description String? @db.Text
+  description String?   @db.Text
   logo        String?
-  address     String? @db.Text
+  address     String?   @db.Text
   phone       String?
-  tbo         Int     @default(3)
-  rounded     Int     @default(1000)
-  limit       Int     @default(0)
+  email       String?
+  tbo         Int       @default(3)
+  rounded     Int       @default(1000)
+  limit       BigInt    @default(0)
   c_margin    Float
   c_adm       Float
   c_gov       Int
   c_stamps    Int
   c_account   Int
   dsr         Float
+  sk_no       String?
+  sk_date     DateTime?
 
   status           Boolean            @default(true)
   created_at       DateTime           @default(now())
@@ -91,6 +95,7 @@ model Sumdan {
   droppings        Dropping[]
   berkas           Berkas[]
   jaminans         Jaminan[]
+  journalEntries   JournalEntry[]
 }
 
 model Area {
@@ -117,27 +122,36 @@ model Cabang {
 }
 
 model User {
-  id       String  @id @default(uuid())
-  nip      String?
-  fullname String
-  username String  @unique
-  password String
-  email    String?
-  phone    String?
-  target   Int     @default(0)
-  position String?
+  id          String    @id @default(uuid())
+  nip         String?
+  fullname    String
+  username    String    @unique
+  password    String
+  email       String?
+  phone       String?
+  target      Int       @default(0)
+  position    String?
+  pkwt_status String?
+  start_pkwt  DateTime?
+  end_pkwt    DateTime?
+  nik         String?
+  salary      Int       @default(0)
+  t_transport Int       @default(0)
+  t_position  Int       @default(0)
+  ptkp        String?
 
-  status       Boolean  @default(true)
-  created_at   DateTime @default(now())
-  updated_at   DateTime @default(now())
-  Role         Role     @relation(fields: [roleId], references: [id])
-  Cabang       Cabang   @relation(fields: [cabangId], references: [id])
-  Sumdan       Sumdan?  @relation(fields: [sumdanId], references: [id])
-  roleId       String
-  cabangId     String
-  sumdanId     String?
-  CreateDDapem Dapem[]  @relation("CreateDapemRelation")
-  AODapem      Dapem[]  @relation("AODapemRelation")
+  status         Boolean        @default(true)
+  created_at     DateTime       @default(now())
+  updated_at     DateTime       @default(now())
+  Role           Role           @relation(fields: [roleId], references: [id])
+  Cabang         Cabang         @relation(fields: [cabangId], references: [id])
+  Sumdan         Sumdan?        @relation(fields: [sumdanId], references: [id])
+  roleId         String
+  cabangId       String
+  sumdanId       String?
+  CreateDDapem   Dapem[]        @relation("CreateDapemRelation")
+  AODapem        Dapem[]        @relation("AODapemRelation")
+  journalEntries JournalEntry[]
 }
 
 model ProdukPembiayaan {
@@ -257,6 +271,8 @@ model Dapem {
   aw_nik          String?
   aw_birthdate    DateTime?
   aw_birthplace   String?
+  aw_job          String?
+  aw_address      String?
   aw_relate       String?
 
   f_name    String?
@@ -264,23 +280,28 @@ model Dapem {
   f_phone   String?
   f_address String?
 
-  dropping_status  EDapemStatus       @default(DRAFT)
-  verif_status     ESubmissionStatus?
-  verif_desc       String?            @db.Text
-  slik_status      ESubmissionStatus?
-  slik_desc        String?            @db.Text
-  approv_status    ESubmissionStatus?
-  approv_desc      String?            @db.Text
-  takeover_status  EDapemStatus       @default(DRAFT)
-  takeover_desc    String?            @db.Text
-  mutasi_status    EDapemStatus       @default(DRAFT)
-  mutasi_desc      String?            @db.Text
-  cash_status      EDapemStatus       @default(DRAFT)
-  cash_desc        String?            @db.Text
-  document_status  EDocStatus         @default(UNIT)
-  document_desc    String?            @db.Text
-  guarantee_status EDocStatus         @default(UNIT)
-  guarantee_desc   String?            @db.Text
+  dropping_status   EDapemStatus       @default(DRAFT)
+  verif_status      ESubmissionStatus?
+  verif_desc        String?            @db.Text
+  slik_status       ESubmissionStatus?
+  slik_desc         String?            @db.Text
+  approv_status     ESubmissionStatus?
+  approv_desc       String?            @db.Text
+  takeover_status   EDapemStatus       @default(DRAFT)
+  takeover_desc     String?            @db.Text
+  takeover_date_exc DateTime?
+  mutasi_status     EDapemStatus       @default(DRAFT)
+  mutasi_desc       String?            @db.Text
+  mutasi_date_exc   DateTime?
+  flagging_status   EDapemStatus       @default(DRAFT)
+  flagging_desc     String?            @db.Text
+  flagging_date_exc DateTime?
+  cash_status       EDapemStatus       @default(DRAFT)
+  cash_desc         String?            @db.Text
+  document_status   EDocStatus         @default(UNIT)
+  document_desc     String?            @db.Text
+  guarantee_status  EDocStatus         @default(UNIT)
+  guarantee_desc    String?            @db.Text
 
   used_for      String
   no_contract   String
@@ -291,6 +312,9 @@ model Dapem {
   video_interview String?
   video_insurance String?
   file_contract   String?
+  file_takeover   String?
+  file_mutasi     String?
+  file_flagging   String?
 
   status           Boolean          @default(true)
   created_at       DateTime         @default(now())
@@ -313,19 +337,20 @@ model Dapem {
   berkasId           String?
   jaminanId          String?
   Angsuran           Angsuran[]
-  pelunasans         Pelunasan[]
+  Pelunasan          Pelunasan?
 }
 
 model Dropping {
-  id         String   @id @default(uuid())
-  file_sub   String?
-  file_proof String?  @db.Text
-  status     Boolean
-  process_at DateTime
-  created_at DateTime
-  Dapem      Dapem[]
-  Sumdan     Sumdan   @relation(fields: [sumdanId], references: [id])
-  sumdanId   String
+  id             String         @id @default(uuid())
+  file_sub       String?
+  file_proof     String?        @db.Text
+  status         Boolean
+  process_at     DateTime?
+  created_at     DateTime
+  Dapem          Dapem[]
+  Sumdan         Sumdan         @relation(fields: [sumdanId], references: [id])
+  sumdanId       String
+  journalEntries JournalEntry[]
 }
 
 model Berkas {
@@ -333,7 +358,7 @@ model Berkas {
   file_sub   String?
   file_proof String?
   status     EDocStatus
-  process_at DateTime
+  process_at DateTime?
   created_at DateTime
   Dapem      Dapem[]
   Sumdan     Sumdan     @relation(fields: [sumdanId], references: [id])
@@ -345,7 +370,7 @@ model Jaminan {
   file_sub   String?
   file_proof String?
   status     EDocStatus
-  process_at DateTime
+  process_at DateTime?
   created_at DateTime
   Dapem      Dapem[]
   Sumdan     Sumdan     @relation(fields: [sumdanId], references: [id])
@@ -353,18 +378,21 @@ model Jaminan {
 }
 
 model Pelunasan {
-  id       String        @id @default(uuid())
-  amount   Int
-  penalty  Int
-  desc     String?
-  file_sub String?
-  type     ESettleStatus
-  Dapem    Dapem         @relation(fields: [dapemId], references: [id])
+  id               String        @id @default(uuid())
+  amount           Int
+  amount_sumdan    Int
+  desc_sumdan      String?       @db.Text
+  penalty          Int
+  desc             String?       @db.Text
+  file_sub         String?
+  guarantee_status EDocStatus    @default(MITRA)
+  type             ESettleStatus
+  Dapem            Dapem         @relation(fields: [dapemId], references: [id])
 
   status_paid ESubmissionStatus @default(PENDING)
-  process_at  DateTime
+  process_at  DateTime?
   created_at  DateTime
-  dapemId     String
+  dapemId     String            @unique
 }
 
 model Angsuran {
@@ -377,4 +405,40 @@ model Angsuran {
   remaining Int
   Dapem     Dapem     @relation(fields: [dapemId], references: [id])
   dapemId   String
+}
+
+// AKUNTING
+enum AccountType {
+  ASSET
+  KEWAJIBAN
+  MODAL
+  PENDAPATAN
+  BEBAN
+}
+
+model CategoryOfAccount {
+  id           String              @id @default(uuid())
+  name         String
+  type         AccountType
+  status       Boolean             @default(true)
+  parentId     String?
+  Parent       CategoryOfAccount?  @relation("AccountHierarchy", fields: [parentId], references: [id])
+  Children     CategoryOfAccount[] @relation("AccountHierarchy")
+  JournalEntry JournalEntry[]
+}
+
+model JournalEntry {
+  id          String   @id @default(uuid())
+  date        DateTime
+  description String?
+  amount      Decimal  @default(0) @db.Decimal(18, 2)
+
+  Sumdan              Sumdan?           @relation(fields: [sumdanId], references: [id])
+  Dropping            Dropping?         @relation(fields: [droppingId], references: [id])
+  CategoryOfAccount   CategoryOfAccount @relation(fields: [categoryOfAccountId], references: [id])
+  User                User?             @relation(fields: [userId], references: [id])
+  droppingId          String?
+  categoryOfAccountId String
+  sumdanId            String?
+  userId              String?
 }

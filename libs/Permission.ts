@@ -5,7 +5,7 @@ import { useMemo } from "react";
 export function getUserAccess(role: Role, path: string): string[] {
   try {
     const permissions: { path: string; access: string[] }[] = JSON.parse(
-      role.permission || "[]"
+      role.permission || "[]",
     );
 
     const found = permissions.find((p) => p.path === path);
@@ -29,14 +29,14 @@ export function useAccess(path: string) {
 
   const hasAccess = useMemo(
     () => (action: string) => access.includes(action),
-    [access]
+    [access],
   );
   const crossAccess = useMemo(
     () => (action: string, currPath: string) => {
       const currAccess = getUserAccess(role!, currPath);
       return currAccess.includes(action);
     },
-    [access]
+    [access],
   );
 
   return { access, hasAccess, crossAccess };

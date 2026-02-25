@@ -200,7 +200,7 @@ export default function Page() {
         loading={loading}
         rowKey={"id"}
         bordered
-        scroll={{ x: "max-content", y: 320 }}
+        scroll={{ x: "max-content", y: "60vh" }}
         pagination={{
           current: pageProps.page,
           pageSize: pageProps.limit,

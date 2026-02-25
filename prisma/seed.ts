@@ -9,9 +9,7 @@ async function main() {
       id: "RL001",
       name: "Developer",
       permission: JSON.stringify([
-        { name: "Dashboard", path: "/dashboard", access: ["read"] },
         {
-          name: "Role Manajemen",
           path: "/master/roles",
           access: ["read", "write", "update", "delete"],
         },
@@ -25,7 +23,8 @@ async function main() {
   const area = await prisma.area.upsert({
     where: { id: "KW01" },
     create: {
-      name: "Jawa Barat",
+      id: "KW01",
+      name: "JAWA BARAT",
       status: true,
       created_at: new Date(),
       updated_at: new Date(),
@@ -35,7 +34,8 @@ async function main() {
   const unit = await prisma.cabang.upsert({
     where: { id: "UP001" },
     create: {
-      name: "Pusat",
+      id: "UP01",
+      name: "PUSAT",
       address: "",
       phone: "",
       areaId: area.id,
@@ -48,15 +48,15 @@ async function main() {
 
   const pass = await bcrypt.hash("Tsani182", 10);
   await prisma.user.upsert({
-    where: { username: "syihabudin" },
+    where: { username: "developer" },
     update: {},
     create: {
       id: "USR001",
       nip: "0100120250101",
-      fullname: "Syihabudin Tsani",
-      username: "syihabudin",
+      fullname: "Developer SIPP",
+      username: "developer",
       password: pass,
-      email: "syihabudin@gmail.com",
+      email: "developer@gmail.com",
       phone: "0881022157439",
       target: 0,
       status: true,

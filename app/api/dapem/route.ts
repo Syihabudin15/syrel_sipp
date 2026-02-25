@@ -1,3 +1,4 @@
+import { serializeForApi } from "@/components/utils/PembiayaanUtil";
 import { getSession } from "@/libs/Auth";
 import { IDapem } from "@/libs/IInterfaces";
 import prisma from "@/libs/Prisma";
@@ -10,6 +11,7 @@ export const GET = async (request: NextRequest) => {
   const limit = request.nextUrl.searchParams.get("limit") || "50";
   const search = request.nextUrl.searchParams.get("search");
   const dropping_status = request.nextUrl.searchParams.get("dropping_status");
+  const nominatif = request.nextUrl.searchParams.get("nominatif");
   const slik_status = request.nextUrl.searchParams.get("slik_status");
   const verif_status = request.nextUrl.searchParams.get("verif_status");
   const approv_status = request.nextUrl.searchParams.get("approv_status");
@@ -21,6 +23,8 @@ export const GET = async (request: NextRequest) => {
   const takeover_status = request.nextUrl.searchParams.get("takeover_status");
   const mutasi_status = request.nextUrl.searchParams.get("mutasi_status");
   const cash_status = request.nextUrl.searchParams.get("cash_status");
+  const flagging_status = request.nextUrl.searchParams.get("flagging_status");
+  const paid_status = request.nextUrl.searchParams.get("paid_status");
   const backdate = request.nextUrl.searchParams.get("backdate");
   const skip = (parseInt(page) - 1) * parseInt(limit);
 
@@ -49,9 +53,14 @@ export const GET = async (request: NextRequest) => {
           },
         ],
       }),
-      ...(dropping_status && {
-        dropping_status: dropping_status as EDapemStatus,
-      }),
+      ...(dropping_status
+        ? dropping_status === "final"
+          ? { dropping_status: { in: ["APPROVED", "PROCCESS"] } }
+          : {
+              dropping_status: dropping_status as EDapemStatus,
+            }
+        : {}),
+      ...(nominatif && { dropping_status: { in: ["APPROVED", "PAID_OFF"] } }),
       ...(cash_status && {
         cash_status: cash_status as EDapemStatus,
       }),
@@ -83,6 +92,12 @@ export const GET = async (request: NextRequest) => {
       ...(mutasi_status && { mutasi_status: mutasi_status as EDapemStatus }),
       ...(takeover_status && {
         takeover_status: takeover_status as EDapemStatus,
+      }),
+      ...(flagging_status && {
+        flagging_status: flagging_status as EDapemStatus,
+      }),
+      ...(paid_status && {
+        Pelunasan: { status_paid: paid_status as ESubmissionStatus },
       }),
       ...(user.sumdanId && { ProdukPembiayaan: { sumdanId: user.sumdanId } }),
       ...(backdate && {
@@ -124,6 +139,7 @@ export const GET = async (request: NextRequest) => {
       Jaminan: true,
       Angsuran: true,
       Dropping: true,
+      Pelunasan: true,
     },
   });
 
@@ -145,9 +161,13 @@ export const GET = async (request: NextRequest) => {
           },
         ],
       }),
-      ...(dropping_status && {
-        dropping_status: dropping_status as EDapemStatus,
-      }),
+      ...(dropping_status
+        ? dropping_status === "final"
+          ? { dropping_status: { in: ["APPROVED", "PROCCESS"] } }
+          : {
+              dropping_status: dropping_status as EDapemStatus,
+            }
+        : {}),
       ...(cash_status && {
         cash_status: cash_status as EDapemStatus,
       }),
@@ -180,6 +200,9 @@ export const GET = async (request: NextRequest) => {
       ...(takeover_status && {
         takeover_status: takeover_status as EDapemStatus,
       }),
+      ...(paid_status && {
+        Pelunasan: { status_paid: paid_status as ESubmissionStatus },
+      }),
       ...(user.sumdanId && { ProdukPembiayaan: { sumdanId: user.sumdanId } }),
       ...(backdate && {
         created_at: {
@@ -191,7 +214,10 @@ export const GET = async (request: NextRequest) => {
     },
   });
 
-  return NextResponse.json({ data: find, total, status: 200 }, { status: 200 });
+  return NextResponse.json(
+    { data: serializeForApi(find), total, status: 200 },
+    { status: 200 },
+  );
 };
 
 export const POST = async (req: NextRequest) => {
@@ -207,6 +233,7 @@ export const POST = async (req: NextRequest) => {
     Jaminan,
     Angsuran,
     Dropping,
+    Pelunasan,
     ...saved
   } = data;
   try {
@@ -245,6 +272,7 @@ export const PUT = async (req: NextRequest) => {
     Jaminan,
     Angsuran,
     Dropping,
+    Pelunasan,
     ...saved
   } = data;
   try {
@@ -329,6 +357,7 @@ export const PATCH = async (req: NextRequest) => {
       Jaminan: true,
       Angsuran: true,
       Dropping: true,
+      Pelunasan: true,
     },
   });
   if (!id)
@@ -337,7 +366,10 @@ export const PATCH = async (req: NextRequest) => {
       { status: 404 },
     );
 
-  return NextResponse.json({ data: find, status: 200 }, { status: 200 });
+  return NextResponse.json(
+    { data: serializeForApi(find), status: 200 },
+    { status: 200 },
+  );
 };
 
 export const DELETE = async (req: NextRequest) => {

@@ -1,12 +1,15 @@
 "use client";
 
-import { IDapem, IDesc } from "@/libs/IInterfaces";
-import { EDapemStatus, ESubmissionStatus } from "@prisma/client";
-import { Divider, Modal, Tag } from "antd";
+import { IDapem, IDesc, IExportData } from "@/libs/IInterfaces";
+import { EDapemStatus, EDocStatus, ESubmissionStatus } from "@prisma/client";
+import { Button, Divider, Drawer, Modal, Tag } from "antd";
 import { HookAPI } from "antd/es/modal/useModal";
 import { useState } from "react";
 import { FormInput } from "./FormUtils";
 import { GetAngsuran, IDRFormat } from "./PembiayaanUtil";
+import * as XLSX from "xlsx";
+import moment from "moment";
+import { FilterOutlined } from "@ant-design/icons";
 
 export const GetStatusTag = (status: ESubmissionStatus | undefined | null) => {
   if (status) {
@@ -44,6 +47,25 @@ export const GetDroppingStatusTag = (
                 : status === "PROCCESS"
                   ? "blue"
                   : "red"
+        }
+        variant="solid"
+      >
+        {status}
+      </Tag>
+    );
+  }
+  return <div></div>;
+};
+export const GetBerkasStatusTag = (status: EDocStatus | undefined | null) => {
+  if (status) {
+    return (
+      <Tag
+        color={
+          status === "MITRA"
+            ? "green"
+            : status === "DELIVERY"
+              ? "blue"
+              : "orange"
         }
         variant="solid"
       >
@@ -216,8 +238,43 @@ export const ProsesPembiayaan = ({
   );
 };
 
+export const FilterData = ({ children }: { children: React.ReactNode }) => {
+  const [open, setOpen] = useState(false);
+
+  return (
+    <div>
+      <Button
+        icon={<FilterOutlined />}
+        size="small"
+        onClick={() => setOpen(true)}
+        type="primary"
+      >
+        Filter
+      </Button>
+      <Drawer
+        open={open}
+        onClose={() => setOpen(!open)}
+        title="FILTER DATA"
+        placement="right"
+        size={window && window.innerWidth > 600 ? "30%" : "60%"}
+      >
+        {children}
+      </Drawer>
+    </div>
+  );
+};
+
 const defaultDesc: IDesc = {
   name: "",
   date: new Date(),
   desc: "",
+};
+
+export const ExportToExcel = (data: IExportData[], filename: string) => {
+  const wb = XLSX.utils.book_new();
+  for (const d of data) {
+    const ws = XLSX.utils.json_to_sheet(d.data);
+    XLSX.utils.book_append_sheet(wb, ws, d.sheetname);
+  }
+  XLSX.writeFile(wb, `${filename}_${moment().format("DDMMYYYY")}.xlsx`);
 };

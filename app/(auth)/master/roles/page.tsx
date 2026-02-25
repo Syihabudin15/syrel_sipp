@@ -130,7 +130,7 @@ export default function Page() {
   ];
 
   const nestedColumns = [
-    { title: "Menu", dataIndex: "name", key: "name" },
+    { title: "Menu", dataIndex: "path", key: "path" },
     {
       title: "Hak Akses",
       dataIndex: "access",
@@ -270,6 +270,18 @@ export function UpsertRole({
       });
       return;
     }
+    // data.permission = JSON.stringify(
+    //   (
+    //     data.permission as unknown as {
+    //       name: string;
+    //       path: string;
+    //       access: string[];
+    //     }[]
+    //   ).map((d) => {
+    //     const { name, ...saved } = d;
+    //     return saved;
+    //   }),
+    // );
     setLoading(true);
     await fetch("/api/roles", {
       method: record ? "PUT" : "POST",
@@ -317,7 +329,7 @@ export function UpsertRole({
         };
       },
       render(value, record, index) {
-        return <>{record.name}</>;
+        return <>{record.path}</>;
       },
     },
     {
@@ -388,7 +400,7 @@ export function UpsertRole({
             dataSource={menus}
             size="small"
             pagination={false}
-            scroll={{ x: "max-content", y: 320 }}
+            scroll={{ x: "max-content", y: "50vh" }}
             loading={loading}
             bordered
           />
@@ -489,13 +501,13 @@ const defaultMenu: IPermission[] = listMenuUI
     if (m.children && m.children.length > 0) {
       return m.children.map((c) => ({
         path: c.key,
-        name: String(c.label),
+        // name: String(c.label),
         access: [],
       }));
     } else {
       return {
         path: m.key,
-        name: String(m.label),
+        // name: String(m.label),
         access: [],
       };
     }

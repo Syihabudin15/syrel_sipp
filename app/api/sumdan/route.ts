@@ -1,12 +1,16 @@
+import { serializeForApi } from "@/components/utils/PembiayaanUtil";
 import { getSession } from "@/libs/Auth";
 import prisma from "@/libs/Prisma";
 import { Sumdan } from "@prisma/client";
+import moment from "moment";
 import { NextRequest, NextResponse } from "next/server";
 
 export const GET = async (request: NextRequest) => {
   const page = request.nextUrl.searchParams.get("page") || "1";
+  const include = request.nextUrl.searchParams.get("include");
   const limit = request.nextUrl.searchParams.get("limit") || "50";
   const search = request.nextUrl.searchParams.get("search") || "";
+  const backdate = request.nextUrl.searchParams.get("backdate");
   const skip = (parseInt(page) - 1) * parseInt(limit);
 
   const session = await getSession();
@@ -27,7 +31,30 @@ export const GET = async (request: NextRequest) => {
     },
     skip: skip,
     take: parseInt(limit),
-    include: { ProdukPembiayaan: { where: { status: true } } },
+    include: {
+      ProdukPembiayaan: {
+        where: { status: true },
+        ...(include && {
+          include: {
+            Dapem: {
+              where: {
+                status: true,
+                dropping_status: { in: ["APPROVED", "PAID_OFF"] },
+                ...(backdate && {
+                  Dropping: {
+                    process_at: {
+                      gte: moment(backdate.split(",")[0]).toDate(),
+                      lte: moment(backdate.split(",")[1]).toDate(),
+                    },
+                  },
+                }),
+              },
+              include: { Angsuran: true },
+            },
+          },
+        }),
+      },
+    },
   });
 
   const total = await prisma.sumdan.count({
@@ -42,7 +69,7 @@ export const GET = async (request: NextRequest) => {
 
   return NextResponse.json({
     status: 200,
-    data: find,
+    data: serializeForApi(find),
     total: total,
   });
 };
@@ -147,7 +174,7 @@ export const PATCH = async (request: NextRequest) => {
 
   return NextResponse.json({
     status: 200,
-    data: find,
+    data: serializeForApi(find),
     total: total,
   });
 };

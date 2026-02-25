@@ -53,7 +53,11 @@ export default function Page() {
       return { ...s, ProdukPembiayaan: prod };
     });
     setSumdanAv(newAv);
-    const maxTen = GetMaxTenor(data.Produk.max_age, year, month);
+    const maxTenn = GetMaxTenor(data.Produk.max_paid, year, month);
+    const maxTen =
+      parseInt(String(maxTenn)) > data.Produk.max_tenor
+        ? data.Produk.max_tenor
+        : parseInt(String(maxTenn));
     const maxPlaf = parseInt(
       String(
         GetMaxPlafond(
@@ -482,7 +486,6 @@ export default function Page() {
             <Input
               size="small"
               style={{ width: 80 }}
-              disabled={!hasAccess("proses")}
               suffix={<span className="text-xs italic opacity-70">%</span>}
               value={data.c_blokir}
               onChange={(e) =>
@@ -742,7 +745,7 @@ const ModalDetailPembiayaan = ({
                 label={`Blokir Angsuran ${data.c_blokir}X`}
                 style={{ padding: 5 }}
               >
-                {IDRFormat(data.c_blokir)}
+                {IDRFormat(data.c_blokir * data.angsuran)}
               </Descriptions.Item>
               <Descriptions.Item
                 label="Nominal Takeover"

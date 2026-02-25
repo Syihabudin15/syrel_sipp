@@ -35,6 +35,7 @@ import {
   EMarriageStatus,
   Jaminan,
   JenisPembiayaan,
+  Pelunasan,
 } from "@prisma/client";
 import { App, Button, Card, Checkbox, Divider, Input, Select } from "antd";
 import moment from "moment";
@@ -728,21 +729,6 @@ export default function UpsertPermohonan({ record }: { record?: IDapem }) {
           <FormInput
             data={{
               mode: "vertical",
-              label: "Hubungan",
-              type: "text",
-              class: "flex-1",
-              required: true,
-              value: data.aw_relate,
-              onChange: (e: string) =>
-                setData({
-                  ...data,
-                  aw_relate: e,
-                }),
-            }}
-          />
-          <FormInput
-            data={{
-              mode: "vertical",
               label: "Nomor NIK",
               type: "text",
               class: "flex-1",
@@ -785,7 +771,52 @@ export default function UpsertPermohonan({ record }: { record?: IDapem }) {
                 }),
             }}
           />
-          <Divider titlePlacement="left">Kontak Darurat</Divider>
+          <FormInput
+            data={{
+              mode: "vertical",
+              label: "Pekerjaan",
+              type: "text",
+              class: "flex-1",
+              required: true,
+              value: data.aw_job,
+              onChange: (e: string) =>
+                setData({
+                  ...data,
+                  aw_job: e,
+                }),
+            }}
+          />
+          <FormInput
+            data={{
+              mode: "vertical",
+              label: "Alamat",
+              type: "text",
+              class: "flex-1",
+              required: true,
+              value: data.aw_address,
+              onChange: (e: string) =>
+                setData({
+                  ...data,
+                  aw_address: e,
+                }),
+            }}
+          />
+          <FormInput
+            data={{
+              mode: "vertical",
+              label: "Hubungan",
+              type: "text",
+              class: "flex-1",
+              required: true,
+              value: data.aw_relate,
+              onChange: (e: string) =>
+                setData({
+                  ...data,
+                  aw_relate: e,
+                }),
+            }}
+          />
+          <Divider titlePlacement="left">Keluarga Tidak Serumah</Divider>
           <FormInput
             data={{
               mode: "vertical",
@@ -798,21 +829,6 @@ export default function UpsertPermohonan({ record }: { record?: IDapem }) {
                 setData({
                   ...data,
                   f_name: e,
-                }),
-            }}
-          />
-          <FormInput
-            data={{
-              mode: "vertical",
-              label: "Hubungan",
-              type: "text",
-              class: "flex-1",
-              required: true,
-              value: data.f_relate,
-              onChange: (e: string) =>
-                setData({
-                  ...data,
-                  f_relate: e,
                 }),
             }}
           />
@@ -843,6 +859,22 @@ export default function UpsertPermohonan({ record }: { record?: IDapem }) {
                 setData({
                   ...data,
                   f_address: e,
+                }),
+            }}
+          />
+
+          <FormInput
+            data={{
+              mode: "vertical",
+              label: "Hubungan",
+              type: "text",
+              class: "flex-1",
+              required: true,
+              value: data.f_relate,
+              onChange: (e: string) =>
+                setData({
+                  ...data,
+                  f_relate: e,
                 }),
             }}
           />
@@ -1687,6 +1719,8 @@ const defaultData: IDapem = {
   aw_nik: null,
   aw_birthdate: null,
   aw_birthplace: null,
+  aw_job: null,
+  aw_address: null,
   aw_relate: null,
 
   f_name: null,
@@ -1703,8 +1737,13 @@ const defaultData: IDapem = {
   approv_desc: null,
   takeover_status: "DRAFT",
   takeover_desc: null,
+  takeover_date_exc: null,
   mutasi_status: "DRAFT",
   mutasi_desc: null,
+  mutasi_date_exc: null,
+  flagging_status: "DRAFT",
+  flagging_desc: null,
+  flagging_date_exc: null,
   cash_status: "DRAFT",
   cash_desc: null,
   document_status: "UNIT",
@@ -1721,6 +1760,9 @@ const defaultData: IDapem = {
   video_interview: null,
   video_insurance: null,
   file_contract: null,
+  file_takeover: null,
+  file_mutasi: null,
+  file_flagging: null,
 
   status: true,
   created_at: new Date(),
@@ -1733,6 +1775,7 @@ const defaultData: IDapem = {
   Dropping: {} as Dropping,
   Berkas: {} as Berkas,
   Jaminan: {} as Jaminan,
+  Pelunasan: {} as Pelunasan,
   Angsuran: [],
 
   nopen: "",

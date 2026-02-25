@@ -1,8 +1,10 @@
 "use client";
 
 import { FormInput } from "@/components";
+import { printPKWT } from "@/components/pdfutils/pkwt/PKWTStandar";
+import { FilterData } from "@/components/utils/CompUtils";
 import { IDRFormat, IDRToNumber } from "@/components/utils/PembiayaanUtil";
-import { IActionTable, IPageProps } from "@/libs/IInterfaces";
+import { IActionTable, IPageProps, UserType } from "@/libs/IInterfaces";
 import { useAccess } from "@/libs/Permission";
 import {
   BankOutlined,
@@ -13,6 +15,7 @@ import {
   MailOutlined,
   PhoneOutlined,
   PlusCircleFilled,
+  PrinterOutlined,
   SaveOutlined,
   UserOutlined,
 } from "@ant-design/icons";
@@ -32,12 +35,6 @@ import { HookAPI } from "antd/es/modal/useModal";
 import moment from "moment";
 import { useEffect, useState } from "react";
 
-interface UserType extends User {
-  Cabang: Cabang;
-  Sumdan: Sumdan;
-  Role: Role;
-}
-
 export default function Page() {
   const [upsert, setUpsert] = useState<IActionTable<UserType>>({
     upsert: false,
@@ -52,6 +49,8 @@ export default function Page() {
     data: [],
     search: "",
     roleId: "",
+    pkwt_status: "",
+    position: "",
   });
   const [loading, setLoading] = useState(false);
   const [roles, setRoles] = useState<Role[]>([]);
@@ -65,12 +64,13 @@ export default function Page() {
     const params = new URLSearchParams();
     params.append("page", pageProps.page.toString());
     params.append("limit", pageProps.limit.toString());
-    if (pageProps.search) {
-      params.append("search", pageProps.search);
-    }
-    if (pageProps.roleId) {
-      params.append("roleId", pageProps.roleId);
-    }
+    if (pageProps.search) params.append("search", pageProps.search);
+
+    if (pageProps.roleId) params.append("roleId", pageProps.roleId);
+    if (pageProps.pkwt_status)
+      params.append("pkwt_status", pageProps.pkwt_status);
+    if (pageProps.position) params.append("position", pageProps.position);
+
     const res = await fetch(`/api/user?${params.toString()}`);
     const json = await res.json();
     setPageProps((prev) => ({
@@ -86,7 +86,14 @@ export default function Page() {
       await getData();
     }, 200);
     return () => clearTimeout(timeout);
-  }, [pageProps.page, pageProps.limit, pageProps.search, pageProps.roleId]);
+  }, [
+    pageProps.page,
+    pageProps.limit,
+    pageProps.search,
+    pageProps.roleId,
+    pageProps.pkwt_status,
+    pageProps.position,
+  ]);
 
   useEffect(() => {
     (async () => {
@@ -117,11 +124,10 @@ export default function Page() {
       render(value, record, index) {
         return (
           <div>
-            <p>
-              {record.fullname} ({record.nip})
-            </p>
+            <p>{record.fullname}</p>
             <div className="text-xs italic text-blue-400">
               @{record.username}
+              <div>NIK: {record.nik}</div>
             </div>
           </div>
         );
@@ -140,19 +146,22 @@ export default function Page() {
             <div>
               <PhoneOutlined /> {record.phone}
             </div>
+            <div>
+              <Tag color={"blue"}>{record.Role.name}</Tag>
+            </div>
           </div>
         );
       },
     },
     {
-      title: "Role & UP",
+      title: "Unit Pelayanan",
       dataIndex: "tambahan",
       key: "tambahan",
       sorter: (a, b) => a.fullname.localeCompare(b.fullname),
       render(value, record, index) {
         return (
           <div>
-            <Tag color={"blue"}>{record.Role.name}</Tag>
+            <Tag color={"blue"}>{record.position}</Tag>
             <div className="text-xs italic text-blue-400">
               <div>
                 <EnvironmentOutlined /> {record.Cabang.name}
@@ -164,10 +173,47 @@ export default function Page() {
               )}
               {record.target && (
                 <div>
-                  <DollarCircleOutlined /> {IDRFormat(record.target)}
+                  <DollarCircleOutlined /> Target: {IDRFormat(record.target)}
                 </div>
               )}
             </div>
+          </div>
+        );
+      },
+    },
+    {
+      title: "PKWT Status",
+      dataIndex: "expiredAt",
+      render: (_, record) => (
+        <div className="flex gap-2">
+          <div>
+            <div className="font-bold">{record.pkwt_status}</div>
+            <div className="text-xs italic opacity-70">
+              {moment(record.start_pkwt).format("DD/MM/YYYY")}
+            </div>
+            <div className="text-xs italic opacity-70">
+              {moment(record.end_pkwt).format("DD/MM/YYYY")}
+            </div>
+          </div>
+          {record.end_pkwt && (
+            <div className="border rounded p-2">
+              <CountdownCell date={record.end_pkwt.toString()} />
+            </div>
+          )}
+        </div>
+      ),
+      shouldCellUpdate: () => false,
+    },
+    {
+      title: "NIP & Salary",
+      dataIndex: "salary",
+      key: "salary",
+      render(value, record, index) {
+        return (
+          <div className="text-xs italic text-blue-400">
+            <div>NIP: {record.nip}</div>
+            <div>Salary: {IDRFormat(record.salary)}</div>
+            <div>T_Transport: {IDRFormat(record.t_transport)}</div>
           </div>
         );
       },
@@ -184,6 +230,14 @@ export default function Page() {
       width: 100,
       render: (_, record) => (
         <div className="flex gap-2">
+          {hasAccess("write") && (
+            <Button
+              icon={<PrinterOutlined />}
+              onClick={() => printPKWT(record)}
+              size="small"
+              type="primary"
+            ></Button>
+          )}
           {hasAccess("update") && (
             <Button
               icon={<EditOutlined />}
@@ -219,34 +273,107 @@ export default function Page() {
       styles={{ body: { padding: 5 } }}
     >
       <div className="flex justify-between my-1">
-        {hasAccess("write") && (
-          <Button
-            size="small"
-            type="primary"
-            icon={<PlusCircleFilled />}
-            onClick={() =>
-              setUpsert({ ...upsert, upsert: true, selected: undefined })
+        <div className="flex gap-2">
+          {hasAccess("write") && (
+            <Button
+              size="small"
+              type="primary"
+              icon={<PlusCircleFilled />}
+              onClick={() =>
+                setUpsert({ ...upsert, upsert: true, selected: undefined })
+              }
+            >
+              Add User
+            </Button>
+          )}
+          <FilterData
+            children={
+              <>
+                <div className="my-2">
+                  <p>Role User :</p>
+                  <Select
+                    style={{ width: "100%" }}
+                    options={roles.map((r) => ({ label: r.name, value: r.id }))}
+                    onChange={(e) => setPageProps({ ...pageProps, roleId: e })}
+                    placeholder="role..."
+                    size="small"
+                    allowClear
+                  />
+                </div>
+                <div className="my-2">
+                  <p>Status PKWT :</p>
+                  <Select
+                    style={{ width: "100%" }}
+                    options={[
+                      { label: "TIERING", value: "TIERING" },
+                      { label: "BARU", value: "BARU" },
+                      { label: "LANJUT", value: "LANJUT" },
+                      { label: "TETAP", value: "TETAP" },
+                    ]}
+                    onChange={(e) =>
+                      setPageProps({ ...pageProps, pkwt_status: e })
+                    }
+                    placeholder="status pkwt..."
+                    size="small"
+                    allowClear
+                  />
+                </div>
+                <div className="my-2">
+                  <p>Posisi :</p>
+
+                  <Select
+                    style={{ width: "100%" }}
+                    options={[
+                      { label: "MOC", value: "MOC" },
+                      { label: "SPV", value: "SPV" },
+                      { label: "KORWIL", value: "KORWIL" },
+                      { label: "ADMIN", value: "ADMIN" },
+                      {
+                        label: "KEPALA OPERASIONAL",
+                        value: "KEPALA OPERASIONAL",
+                      },
+                      {
+                        label: "STAFF OPERASIONAL",
+                        value: "STAFF OPERASIONAL",
+                      },
+                      { label: "KEPALA BISNIS", value: "KEPALA BISNIS" },
+                      { label: "STAFF BISNIS", value: "STAFF BISNIS" },
+                      { label: "MANAJER KEUANGAN", value: "MANAJER KEUANGAN" },
+                      { label: "STAFF KEUANGAN", value: "STAFF KEUANGAN" },
+                      {
+                        label: "KEPALA VERIFIKASI",
+                        value: "KEPALA VERIFIKASI",
+                      },
+                      { label: "STAFF VERIFIKASI", value: "STAFF VERIFIKASI" },
+                      { label: "KEPALA DOKUMEN", value: "KEPALA DOKUMEN" },
+                      { label: "STAFF DOKUMEN", value: "STAFF DOKUMEN" },
+                      { label: "KEPALA IT", value: "KEPALA IT" },
+                      { label: "STAFF IT", value: "STAFF IT" },
+                      { label: "FUNDING", value: "FUNDING" },
+                      { label: "GENERAL AFFAIRS", value: "GENERAL AFFAIRS" },
+                    ]}
+                    onChange={(e) =>
+                      setPageProps({ ...pageProps, position: e })
+                    }
+                    placeholder="status jabatan..."
+                    size="small"
+                    allowClear
+                  />
+                </div>
+              </>
             }
-          >
-            Add User
-          </Button>
-        )}
-        <Select
-          style={{ width: 170 }}
-          options={roles.map((r) => ({ label: r.name, value: r.id }))}
-          onChange={(e) => setPageProps({ ...pageProps, roleId: e })}
-          placeholder="filter role..."
-          size="small"
-          allowClear
-        />
-        <Input.Search
-          size="small"
-          style={{ width: 170 }}
-          placeholder="Cari user..."
-          onChange={(e) =>
-            setPageProps({ ...pageProps, search: e.target.value })
-          }
-        />
+          />
+        </div>
+        <div className="flex gap-2 justify-end">
+          <Input.Search
+            size="small"
+            style={{ width: 170 }}
+            placeholder="Cari user..."
+            onChange={(e) =>
+              setPageProps({ ...pageProps, search: e.target.value })
+            }
+          />
+        </div>
       </div>
 
       <Table
@@ -256,7 +383,7 @@ export default function Page() {
         loading={loading}
         rowKey={"id"}
         bordered
-        scroll={{ x: "max-content", y: 320 }}
+        scroll={{ x: "max-content", y: "60vh" }}
         pagination={{
           current: pageProps.page,
           pageSize: pageProps.limit,
@@ -365,128 +492,218 @@ function UpsertUser({
       footer={[]}
       loading={loading}
       style={{ top: 20 }}
+      width={1200}
     >
-      <div className="flex flex-col gap-3">
-        <div className="hidden">
+      <div className="flex gap-4 flex-wrap">
+        <div className="flex-1 flex flex-col gap-3">
+          <div className="hidden">
+            <FormInput
+              data={{
+                label: "USER ID",
+                mode: "horizontal",
+                type: "text",
+                value: data.id,
+                onChange: (e: string) => setData({ ...data, id: e }),
+              }}
+            />
+          </div>
           <FormInput
             data={{
-              label: "USER ID",
+              label: "Role User",
+              mode: "horizontal",
+              required: true,
+              type: "select",
+              value: data.roleId,
+              onChange: (e: string) => setData({ ...data, roleId: e }),
+              options: roles.map((r) => ({ label: r.name, value: r.id })),
+            }}
+          />
+          <FormInput
+            data={{
+              label: "Cabang",
+              mode: "horizontal",
+              required: true,
+              type: "select",
+              value: data.cabangId,
+              onChange: (e: string) => setData({ ...data, cabangId: e }),
+              options: cabangs.map((r) => ({ label: r.name, value: r.id })),
+            }}
+          />
+          <FormInput
+            data={{
+              label: "Mitra",
+              mode: "horizontal",
+              type: "select",
+              value: data.sumdanId,
+              onChange: (e: string) => setData({ ...data, sumdanId: e }),
+              options: sumdans.map((r) => ({ label: r.name, value: r.id })),
+            }}
+          />
+          <FormInput
+            data={{
+              label: "Nama Lengkap",
+              mode: "horizontal",
+              required: true,
+              type: "text",
+              value: data.fullname,
+              onChange: (e: string) => setData({ ...data, fullname: e }),
+            }}
+          />
+          <FormInput
+            data={{
+              label: "Nomor NIK",
+              mode: "horizontal",
+              required: true,
+              type: "text",
+              value: data.nik,
+              onChange: (e: string) => setData({ ...data, nik: e }),
+            }}
+          />
+          <FormInput
+            data={{
+              label: "Username",
+              mode: "horizontal",
+              required: true,
+              type: "text",
+              value: data.username,
+              onChange: (e: string) => setData({ ...data, username: e }),
+            }}
+          />
+          <FormInput
+            data={{
+              label: "Email",
               mode: "horizontal",
               type: "text",
-              value: data.id,
-              onChange: (e: string) => setData({ ...data, id: e }),
+              value: data.email,
+              onChange: (e: string) => setData({ ...data, email: e }),
+            }}
+          />
+          <FormInput
+            data={{
+              label: "Password",
+              mode: "horizontal",
+              type: "password",
+              required: true,
+              value: record ? null : data.password,
+              onChange: (e: string) => setData({ ...data, password: e }),
             }}
           />
         </div>
-        <FormInput
-          data={{
-            label: "Role User",
-            mode: "horizontal",
-            required: true,
-            type: "select",
-            value: data.roleId,
-            onChange: (e: string) => setData({ ...data, roleId: e }),
-            options: roles.map((r) => ({ label: r.name, value: r.id })),
-          }}
-        />
-        <FormInput
-          data={{
-            label: "Cabang",
-            mode: "horizontal",
-            required: true,
-            type: "select",
-            value: data.cabangId,
-            onChange: (e: string) => setData({ ...data, cabangId: e }),
-            options: cabangs.map((r) => ({ label: r.name, value: r.id })),
-          }}
-        />
-        <FormInput
-          data={{
-            label: "Mitra",
-            mode: "horizontal",
-            type: "select",
-            value: data.sumdanId,
-            onChange: (e: string) => setData({ ...data, sumdanId: e }),
-            options: sumdans.map((r) => ({ label: r.name, value: r.id })),
-          }}
-        />
-        <FormInput
-          data={{
-            label: "Nama Lengkap",
-            mode: "horizontal",
-            required: true,
-            type: "text",
-            value: data.fullname,
-            onChange: (e: string) => setData({ ...data, fullname: e }),
-          }}
-        />
-        <FormInput
-          data={{
-            label: "Username",
-            mode: "horizontal",
-            required: true,
-            type: "text",
-            value: data.username,
-            onChange: (e: string) => setData({ ...data, username: e }),
-          }}
-        />
-        <FormInput
-          data={{
-            label: "Email",
-            mode: "horizontal",
-            type: "text",
-            value: data.email,
-            onChange: (e: string) => setData({ ...data, email: e }),
-          }}
-        />
-        <FormInput
-          data={{
-            label: "Password",
-            mode: "horizontal",
-            type: "password",
-            required: true,
-            value: record ? null : data.password,
-            onChange: (e: string) => setData({ ...data, password: e }),
-          }}
-        />
-        <FormInput
-          data={{
-            label: "No Telepon",
-            mode: "horizontal",
-            type: "text",
-            value: data.phone,
-            onChange: (e: string) => setData({ ...data, phone: e }),
-          }}
-        />
-        <FormInput
-          data={{
-            label: "Posisi",
-            mode: "horizontal",
-            type: "text",
-            value: data.position,
-            onChange: (e: string) => setData({ ...data, position: e }),
-          }}
-        />
-        <FormInput
-          data={{
-            label: "Target Perbulan",
-            mode: "horizontal",
-            type: "text",
-            value: IDRFormat(data.target),
-            onChange: (e: string) =>
-              setData({ ...data, target: IDRToNumber(e || "0") }),
-          }}
-        />
-        <div className="flex justify-end gap-4">
-          <Button onClick={() => setOpen(false)}>Cancel</Button>
-          <Button
-            icon={<SaveOutlined />}
-            type="primary"
-            onClick={() => handleSave()}
-          >
-            Save
-          </Button>
+        <div className="flex-1 flex flex-col gap-3">
+          <FormInput
+            data={{
+              label: "No Telepon",
+              mode: "horizontal",
+              type: "text",
+              value: data.phone,
+              onChange: (e: string) => setData({ ...data, phone: e }),
+            }}
+          />
+          <FormInput
+            data={{
+              label: "Posisi",
+              mode: "horizontal",
+              type: "select",
+              value: data.position,
+              onChange: (e: string) => setData({ ...data, position: e }),
+              options: [
+                { label: "MOC", value: "MOC" },
+                { label: "SPV", value: "SPV" },
+                { label: "KORWIL", value: "KORWIL" },
+                { label: "ADMIN", value: "ADMIN" },
+                { label: "KEPALA OPERASIONAL", value: "KEPALA OPERASIONAL" },
+                { label: "STAFF OPERASIONAL", value: "STAFF OPERASIONAL" },
+                { label: "KEPALA BISNIS", value: "KEPALA BISNIS" },
+                { label: "STAFF BISNIS", value: "STAFF BISNIS" },
+                { label: "MANAJER KEUANGAN", value: "MANAJER KEUANGAN" },
+                { label: "STAFF KEUANGAN", value: "STAFF KEUANGAN" },
+                { label: "KEPALA VERIFIKASI", value: "KEPALA VERIFIKASI" },
+                { label: "STAFF VERIFIKASI", value: "STAFF VERIFIKASI" },
+                { label: "KEPALA DOKUMEN", value: "KEPALA DOKUMEN" },
+                { label: "STAFF DOKUMEN", value: "STAFF DOKUMEN" },
+                { label: "KEPALA IT", value: "KEPALA IT" },
+                { label: "STAFF IT", value: "STAFF IT" },
+                { label: "FUNDING", value: "FUNDING" },
+                { label: "GENERAL AFFAIRS", value: "GENERAL AFFAIRS" },
+              ],
+            }}
+          />
+          <FormInput
+            data={{
+              label: "Salary",
+              mode: "horizontal",
+              type: "text",
+              value: IDRFormat(data.salary),
+              onChange: (e: string) =>
+                setData({ ...data, salary: IDRToNumber(e || "0") }),
+            }}
+          />
+          <FormInput
+            data={{
+              label: "Tunj Transport",
+              mode: "horizontal",
+              type: "text",
+              value: IDRFormat(data.t_transport),
+              onChange: (e: string) =>
+                setData({ ...data, t_transport: IDRToNumber(e || "0") }),
+            }}
+          />
+          <FormInput
+            data={{
+              label: "Target Perbulan",
+              mode: "horizontal",
+              type: "text",
+              value: IDRFormat(data.target),
+              onChange: (e: string) =>
+                setData({ ...data, target: IDRToNumber(e || "0") }),
+            }}
+          />
+          <FormInput
+            data={{
+              label: "Status PKWT",
+              mode: "horizontal",
+              type: "select",
+              options: [
+                { label: "TIERING", value: "TIERING" },
+                { label: "BARU", value: "BARU" },
+                { label: "LANJUT", value: "LANJUT" },
+                { label: "TETAP", value: "TETAP" },
+              ],
+              value: data.pkwt_status,
+              onChange: (e: string) => setData({ ...data, pkwt_status: e }),
+            }}
+          />
+          <FormInput
+            data={{
+              label: "Awal PKWT",
+              mode: "horizontal",
+              type: "date",
+              value: moment(data.start_pkwt).format("YYYY-MM-DD"),
+              onChange: (e: string) =>
+                setData({ ...data, start_pkwt: new Date(e) }),
+            }}
+          />
+          <FormInput
+            data={{
+              label: "Akhir PKWT",
+              mode: "horizontal",
+              type: "date",
+              value: moment(data.end_pkwt).format("YYYY-MM-DD"),
+              onChange: (e: string) =>
+                setData({ ...data, end_pkwt: new Date(e) }),
+            }}
+          />
         </div>
+      </div>
+      <div className="flex justify-end gap-4">
+        <Button onClick={() => setOpen(false)}>Cancel</Button>
+        <Button
+          icon={<SaveOutlined />}
+          type="primary"
+          onClick={() => handleSave()}
+        >
+          Save
+        </Button>
       </div>
     </Modal>
   );
@@ -573,8 +790,44 @@ const defaultUser: User = {
   nip: "",
   target: 0,
   position: null,
+  start_pkwt: new Date(),
+  end_pkwt: new Date(),
+  pkwt_status: "BARU",
+  nik: null,
+  salary: 0,
+  t_transport: 0,
+  t_position: 0,
+  ptkp: null,
 
   status: true,
   created_at: new Date(),
   updated_at: new Date(),
 };
+
+export function CountdownCell({ date }: { date: string }) {
+  const [now, setNow] = useState(moment());
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setNow(moment());
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, []);
+
+  const deadline = moment(date); // pastikan format benar
+  const diffDays = deadline.diff(now, "days");
+
+  const days = Math.max(diffDays, 0);
+
+  let color = "#1677ff";
+  if (diffDays <= 7) color = "#ff4d4f";
+  else if (diffDays <= 30) color = "#faad14";
+
+  return (
+    <div style={{ color, fontWeight: 600 }} className="text-center">
+      <div>{days} </div>
+      <div>hari</div>
+    </div>
+  );
+}

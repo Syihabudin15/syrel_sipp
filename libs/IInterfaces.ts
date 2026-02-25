@@ -3,11 +3,14 @@ import {
   Area,
   Berkas,
   Cabang,
+  CategoryOfAccount,
   Dapem,
   Debitur,
   Dropping,
   Jaminan,
   JenisPembiayaan,
+  JournalEntry,
+  Pelunasan,
   ProdukPembiayaan,
   Role,
   Sumdan,
@@ -22,7 +25,6 @@ export interface IUser extends User {
 }
 
 export interface IPermission {
-  name: string;
   path: string;
   access: string[];
 }
@@ -52,6 +54,12 @@ export interface IDesc {
   name: string;
   date: Date;
   desc: string;
+}
+export interface ICashDesc {
+  amount: number;
+  date: Date;
+  desc: string;
+  file: string;
 }
 // Models
 export interface ISumdan extends Sumdan {
@@ -83,9 +91,14 @@ export interface IDapem extends Dapem {
   Jaminan: Jaminan | null;
   JenisPembiayaan: JenisPembiayaan;
   Angsuran: Angsuran[];
+  Pelunasan: Pelunasan;
 }
 
 export interface IDropping extends Dropping {
+  Sumdan: Sumdan;
+  Dapem: IDapem[];
+}
+export interface IDocument extends Berkas {
   Sumdan: Sumdan;
   Dapem: IDapem[];
 }
@@ -93,4 +106,33 @@ export interface IDropping extends Dropping {
 export interface ISumdanDropping extends Sumdan {
   Dapem: IDapem[];
 }
+
+export interface IDebitur extends Debitur {
+  Dapem: IDapem[];
+}
+
+export interface IPelunasan extends Pelunasan {
+  Dapem: IDapem;
+}
+
+export interface IAngsuran extends Angsuran {
+  Dapem: IDapem;
+}
+
+export interface ICategoryOfAccount extends CategoryOfAccount {
+  Children: CategoryOfAccount[];
+  Parent: CategoryOfAccount | null;
+  JournalEntry: JournalEntry[];
+}
 // End Models
+
+export interface IExportData {
+  data: { [key: string]: any }[];
+  sheetname: string;
+}
+
+export interface UserType extends User {
+  Cabang: Cabang;
+  Sumdan: Sumdan;
+  Role: Role;
+}
