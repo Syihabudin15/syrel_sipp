@@ -278,3 +278,25 @@ export const ExportToExcel = (data: IExportData[], filename: string) => {
   }
   XLSX.writeFile(wb, `${filename}_${moment().format("DDMMYYYY")}.xlsx`);
 };
+
+export const MappingToExcelDapem = (data: IDapem[]) => {
+  return data.map((d, i) => ({
+    no: i + 1,
+    pemohon: d.Debitur.fullname,
+    nopen: d.nopen,
+    jenis_pembiayaan: d.JenisPembiayaan.name,
+    produk_pembiayaan: d.ProdukPembiayaan.name,
+    mitra_pembiayaan: d.ProdukPembiayaan.Sumdan.code,
+    plafond: d.plafond,
+    tenor: d.tenor,
+    tgl_akad: d.date_contract,
+    no_akad: d.no_contract,
+    no_skep: d.Debitur.no_skep,
+    dropping_status: d.dropping_status,
+    dropping_date: d.Dropping ? d.Dropping.process_at : null,
+    ao: d.AO.fullname,
+    cabang: d.AO.Cabang.name,
+    area: d.AO.Cabang.Area.name,
+    admin: d.CreatedBy.fullname,
+  }));
+};

@@ -63,7 +63,7 @@ export const Header = (
   leftlogo?: string | null,
   rightlogo?: string | null,
 ) => `
-  <div class="page-header flex items-center justify-between mb-6 border-b pb-4">
+  <div class="page-header flex items-center ${rightlogo || leftlogo ? "justify-between" : "justify-center"} mb-6 border-b pb-4">
     ${leftlogo ? `<img src="${leftlogo}" alt="Logo" class="h-16 mr-4" />` : ""}
     <div class="text-center">
       <h2 class="text-center text-xl font-semibold mb-2 ">${
@@ -118,4 +118,4 @@ export const ListStyle = (
   }
 };
 
-const alplhabet = "abcdefghijklmnopqrstuvwxyz";
+export const alplhabet = "abcdefghijklmnopqrstuvwxyz";

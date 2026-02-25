@@ -92,7 +92,7 @@ export const AnalisaPerhitungan = (record: IDapem) => {
         <div>${moment(record.date_contract).add(record.tenor, "month").format("DD/MM/YYYY")}</div>
       </div>
       <div class="flex gap-2">
-        <div class="w-32">Usia Pemohon</div>
+        <div class="w-32">Est Usia Lunas</div>
         <div class="w-4">:</div>
         <div>${ageLunas.year} Tahun ${ageLunas.month} Bulan ${ageLunas.day} Hari</div>
       </div>
@@ -213,11 +213,11 @@ export const AnalisaPerhitungan = (record: IDapem) => {
     </div>
   </div>
   
-  <div class="mt-5">
+  <div class="mt-5 italic">
     <p>Informasi Lainnya : </p>
     <ul style="list-style-type: disc;">
-      ${record.JenisPembiayaan.status_takeover ? `<li>Ada pelunasan/takeover ke <span class="font-bold">${record.takeover_from}</span> sejumlah ${IDRFormat(record.c_takeover)} yang akan dilakukan dengan estimasi tanggal <span class="font-bold">${moment(record.takeover_date).format("dddd, DD MMMM YYYY")}</span></li>` : ""}
-      ${record.JenisPembiayaan.c_mutasi ? `<li>Ada mutasi kantor bayar gaji pensiun dari <span class="font-bold">${record.mutasi_from} ke ${record.mutasi_to}</span>` : ""}
+      ${record.JenisPembiayaan.status_takeover ? `<li>Instansi takeover ke <span class="font-bold">${record.takeover_from}</span> dengan estimasi pelaksanaan tanggal <span class="font-bold">${moment(record.takeover_date).format("DD MMMM YYYY")}</span></li>` : ""}
+      ${record.JenisPembiayaan.c_mutasi ? `<li>Akan dilakukan mutasi kantor bayar gaji pensiun dari <span class="font-bold">${record.mutasi_from} ke ${record.mutasi_to}</span>` : ""}
     </ul>
   </div>
 `;

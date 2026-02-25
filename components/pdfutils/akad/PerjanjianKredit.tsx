@@ -48,7 +48,7 @@ export const PerjanjianKredit = (record: IDapem) => {
         <div class="w-4">:</div>
         <div class="flex-1">${process.env.NEXT_PUBLIC_APP_AKAD_POSITION}</div>
       </div>
-      <p>Berkedudukan di ${process.env.NEXT_PUBLIC_APP_COMPANY_ADDRESS_SK} Dalam hal ini bertindak untuk dan atas nama Pemberi Kuasa ${record.ProdukPembiayaan.Sumdan.name}, berdasarkan Surat Kuasa No ${record.ProdukPembiayaan.Sumdan.sk_no} tertanggal ${moment(record.ProdukPembiayaan.Sumdan.sk_date).format("DD MMM YYYY")}, oleh karenanya berhak dan sah mewakilkan ${record.ProdukPembiayaan.Sumdan.name} yang berkedudukan di ${record.ProdukPembiayaan.Sumdan.address}, yang selanjutnya disebut <span class="font-bold">“BANK”</span></p>
+      <p>Berkedudukan di ${process.env.NEXT_PUBLIC_APP_COMPANY_ADDRESS_SK} Dalam hal ini bertindak untuk dan atas nama Pemberi Kuasa ${record.ProdukPembiayaan.Sumdan.name}, berdasarkan Surat Kuasa No ${record.ProdukPembiayaan.Sumdan.sk_no} tertanggal ${moment(record.ProdukPembiayaan.Sumdan.sk_date).format("DD MMMM YYYY")}, oleh karenanya berhak dan sah mewakilkan ${record.ProdukPembiayaan.Sumdan.name} yang berkedudukan di ${record.ProdukPembiayaan.Sumdan.address}, yang selanjutnya disebut <span class="font-bold">“BANK”</span></p>
     </div>
   </div>
   <div class="my-2 ml-2 flex gap-2">
@@ -77,7 +77,7 @@ export const PerjanjianKredit = (record: IDapem) => {
       <div class="flex gap-2">
         <div class="w-44">Alamat</div>
         <div class="w-4">:</div>
-        <div class="flex-1">${record.address} KELURAHAN ${record.ward} KECAMATAN ${record.district} ${record.city} ${record.province} ${record.pos_code}</div>
+        <div class="flex-1">${record.Debitur.address} KELURAHAN ${record.Debitur.ward} KECAMATAN ${record.Debitur.district} ${record.Debitur.city} ${record.Debitur.province} ${record.Debitur.pos_code}</div>
       </div>
       <p>Dan untuk tindakan hukum ini telah mendapat persetujuan suami/isteri/ahliwarisnya :</p>
       <div class="flex gap-2">
@@ -475,10 +475,10 @@ export const PerjanjianKredit = (record: IDapem) => {
     </div>
   </div>
 
-  <div class="mt-20">
-    <p class="ml-8">${record.city.toLowerCase().replace("KOTA", "").replace("KABUPATEN", "").toUpperCase()}, ${moment(record.date_contract).format("DD-MM-YYYY")}</p>
-    <div class="flex justify-between gap-6">
-      <div class="flex-1 text-center">
+  <div class="mt-15">
+  <div class="flex justify-between gap-6 items-end">
+    <div class="flex-1 text-center">
+      <p class="ml-8">${(record.Debitur.city || "KOTA BANDUNG").toLowerCase().replace("kota", "").replace("kabupaten", "").toUpperCase()}, ${moment(record.date_contract).format("DD-MM-YYYY")}</p>
         <p class="font-bold">${record.ProdukPembiayaan.Sumdan.name}</p>
         <div class="h-44">
         </div>

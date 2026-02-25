@@ -1159,6 +1159,20 @@ export default function UpsertPermohonan({ record }: { record?: IDapem }) {
               <FormInput
                 data={{
                   mode: "vertical",
+                  label: "Instansi Takeover",
+                  type: "text",
+                  class: "flex-1",
+                  value: data.takeover_from,
+                  onChange: (e: string) =>
+                    setData({
+                      ...data,
+                      takeover_from: e,
+                    }),
+                }}
+              />
+              <FormInput
+                data={{
+                  mode: "vertical",
                   label: "Est Tgl Takeover",
                   type: "date",
                   class: "flex-1",

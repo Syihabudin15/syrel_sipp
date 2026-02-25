@@ -421,21 +421,26 @@ export default function Page() {
       title: "Mutasi & Pelunasan",
       dataIndex: "produk",
       key: "produk",
-      width: 250,
+      width: 300,
       render(value, record, index) {
         return (
           <div>
             {record.JenisPembiayaan.status_mutasi && (
-              <div>
-                <SwapOutlined /> <Tag color={"red"}>{record.mutasi_from}</Tag>{" "}
-                <ArrowRightOutlined style={{ fontSize: 10 }} />{" "}
-                <Tag color={"blue"}>{record.mutasi_to}</Tag>
+              <div style={{ fontSize: 8 }}>
+                <SwapOutlined />{" "}
+                <Tag style={{ fontSize: 8 }} color={"red"}>
+                  {record.mutasi_from}
+                </Tag>{" "}
+                <ArrowRightOutlined style={{ fontSize: 8 }} />{" "}
+                <Tag style={{ fontSize: 8 }} color={"blue"}>
+                  {record.mutasi_to}
+                </Tag>
               </div>
             )}
             {record.JenisPembiayaan.status_takeover && (
-              <div>
+              <div style={{ fontSize: 8 }}>
                 <PayCircleOutlined />{" "}
-                <Tag color={"blue"}>
+                <Tag color={"blue"} style={{ fontSize: 8 }}>
                   {record.takeover_from} (
                   {moment(record.takeover_date).format("DD/MM/YYYY")})
                 </Tag>

@@ -3,6 +3,7 @@ import { AnalisaPerhitungan } from "./Analisa";
 import { IDapem } from "@/libs/IInterfaces";
 import { JadwalAngsuran } from "./KartuAngsuran";
 import { PerjanjianKredit } from "./PerjanjianKredit";
+import { SPKDR } from "./SKPDR";
 
 moment.locale("id");
 
@@ -38,7 +39,7 @@ const generateContractHtml = (record: IDapem) => {
             .page {
               position: relative;
               min-height: 95vh;    /* atau height A4 jika untuk print */
-              padding-top: 80px;    /* ruang untuk header */
+              padding-top: 70px;    /* ruang untuk header */
               page-break-after: always;
             }
     
@@ -47,7 +48,7 @@ const generateContractHtml = (record: IDapem) => {
               top: 0;
               left: 0;
               right: 0;
-              padding: 10px;
+              padding: 5px;
               text-align: center;
               background: white;
               border-bottom: 1px solid #ccc;
@@ -61,15 +62,18 @@ const generateContractHtml = (record: IDapem) => {
         ${AnalisaPerhitungan(record)}
       </div>
 
-      <div class="page" style="font-size: 12px;">
+      <div class="page" style="font-size: 11px;">
         ${JadwalAngsuran(record, "DEBITUR")}
       </div>
-      <div class="page" style="font-size: 12px;">
+      <div class="page" style="font-size: 11px;">
         ${JadwalAngsuran(record, record.ProdukPembiayaan.Sumdan.name)}
       </div>
 
       <div class="page text-justify" style="font-size: 12px;">
         ${PerjanjianKredit(record)}
+      </div>
+      <div class="page text-justify" style="font-size: 11px;">
+        ${SPKDR(record)}
       </div>
 
     </body>

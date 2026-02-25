@@ -16,6 +16,12 @@ import {
   SecurityScanOutlined,
   SwapOutlined,
 } from "@ant-design/icons";
+import dynamic from "next/dynamic";
+const MAUKStandar = dynamic(
+  () =>
+    import("@/components/pdfutils/etc/MAUKStandar").then((d) => d.MAUKStandar),
+  { ssr: false, loading: () => <>Load...</> },
+);
 
 export const NotifItem = ({
   name,
@@ -120,6 +126,34 @@ export const TabsFiles = ({
     <Tabs
       items={[
         ...items,
+        ...(dapem && dapem.geolocation
+          ? [
+              {
+                key: "maps",
+                label: "MAPS",
+                children: (
+                  <iframe
+                    width="100%"
+                    height="450"
+                    src={`https://maps.google.com/maps?q=${dapem.geolocation.split(",")[0]},${dapem.geolocation.split(",")[1]}&z=15&output=embed`}
+                  ></iframe>
+                ),
+              },
+            ]
+          : []),
+        ...(dapem
+          ? [
+              {
+                key: "mauk",
+                label: "MAUK",
+                children: (
+                  <div className="w-full h-112.5">
+                    <MAUKStandar data={dapem} />
+                  </div>
+                ),
+              },
+            ]
+          : []),
         ...(allowprogres && dapem
           ? [
               {
