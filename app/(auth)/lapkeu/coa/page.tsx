@@ -44,7 +44,7 @@ export default function Page() {
     selected: undefined,
   });
   const { modal } = App.useApp();
-  const { hasAccess } = useAccess("/laporan");
+  const { hasAccess } = useAccess("/lapkeu/coa");
 
   const getData = async () => {
     setLoading(true);
