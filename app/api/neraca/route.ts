@@ -11,7 +11,7 @@ export const GET = async (request: NextRequest) => {
         parentId: null,
         Children: { some: {} },
       },
-      include: { Parent: true, Children: true, JournalEntry: true },
+      include: { Parent: true, Children: true, JournalDetails: true },
     }),
     prisma.categoryOfAccount.findMany({
       where: {
@@ -19,7 +19,7 @@ export const GET = async (request: NextRequest) => {
         parentId: null,
         Children: { some: {} },
       },
-      include: { Parent: true, Children: true, JournalEntry: true },
+      include: { Parent: true, Children: true, JournalDetails: true },
     }),
     prisma.categoryOfAccount.findMany({
       where: {
@@ -27,7 +27,7 @@ export const GET = async (request: NextRequest) => {
         parentId: null,
         Children: { some: {} },
       },
-      include: { Parent: true, Children: true, JournalEntry: true },
+      include: { Parent: true, Children: true, JournalDetails: true },
     }),
   ]);
   return NextResponse.json(
