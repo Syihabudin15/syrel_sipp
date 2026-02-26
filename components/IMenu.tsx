@@ -1,4 +1,5 @@
 import {
+  AccountBookOutlined,
   BankOutlined,
   BarChartOutlined,
   BookOutlined,
@@ -183,6 +184,12 @@ export const listMenuUI: IMenuType[] = [
         needaccess: true,
       },
       {
+        label: "Jurnal Entry",
+        key: "/lapkeu/jurnal",
+        icon: <AccountBookOutlined />,
+        needaccess: true,
+      },
+      {
         label: "Neraca",
         key: "/lapkeu/neraca",
         icon: <BarChartOutlined />,
@@ -325,6 +332,10 @@ export const listMenuServer: { key: string; needaccess: boolean }[] = [
   },
   {
     key: "/lapkeu/coa",
+    needaccess: true,
+  },
+  {
+    key: "/lapkeu/jurnal",
     needaccess: true,
   },
   {

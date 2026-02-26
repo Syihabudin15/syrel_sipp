@@ -118,4 +118,22 @@ export const ListStyle = (
   }
 };
 
+export const ListNonStyle = (
+  list: { key: string; value: any; classStyle?: any }[],
+) => {
+  return `
+    ${list
+      .map(
+        (d) => `
+        <div class="flex gap-2 ${d.classStyle ? d.classStyle : ""}">
+          <p class="w-52">${d.key}</p>
+          <p class="w-4">:</p>
+          <p class="flex-1">${d.value}</p>
+        </div>
+      `,
+      )
+      .join("")}
+    `;
+};
+
 export const alplhabet = "abcdefghijklmnopqrstuvwxyz";

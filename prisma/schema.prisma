@@ -95,7 +95,6 @@ model Sumdan {
   droppings        Dropping[]
   berkas           Berkas[]
   jaminans         Jaminan[]
-  journalEntries   JournalEntry[]
 }
 
 model Area {
@@ -140,18 +139,18 @@ model User {
   t_position  Int       @default(0)
   ptkp        String?
 
-  status         Boolean        @default(true)
-  created_at     DateTime       @default(now())
-  updated_at     DateTime       @default(now())
-  Role           Role           @relation(fields: [roleId], references: [id])
-  Cabang         Cabang         @relation(fields: [cabangId], references: [id])
-  Sumdan         Sumdan?        @relation(fields: [sumdanId], references: [id])
+  status         Boolean         @default(true)
+  created_at     DateTime        @default(now())
+  updated_at     DateTime        @default(now())
+  Role           Role            @relation(fields: [roleId], references: [id])
+  Cabang         Cabang          @relation(fields: [cabangId], references: [id])
+  Sumdan         Sumdan?         @relation(fields: [sumdanId], references: [id])
   roleId         String
   cabangId       String
   sumdanId       String?
-  CreateDDapem   Dapem[]        @relation("CreateDapemRelation")
-  AODapem        Dapem[]        @relation("AODapemRelation")
-  journalEntries JournalEntry[]
+  CreateDDapem   Dapem[]         @relation("CreateDapemRelation")
+  AODapem        Dapem[]         @relation("AODapemRelation")
+  journalDetails JournalDetail[]
 }
 
 model ProdukPembiayaan {
@@ -341,16 +340,15 @@ model Dapem {
 }
 
 model Dropping {
-  id             String         @id @default(uuid())
-  file_sub       String?
-  file_proof     String?        @db.Text
-  status         Boolean
-  process_at     DateTime?
-  created_at     DateTime
-  Dapem          Dapem[]
-  Sumdan         Sumdan         @relation(fields: [sumdanId], references: [id])
-  sumdanId       String
-  journalEntries JournalEntry[]
+  id         String    @id @default(uuid())
+  file_sub   String?
+  file_proof String?   @db.Text
+  status     Boolean
+  process_at DateTime?
+  created_at DateTime
+  Dapem      Dapem[]
+  Sumdan     Sumdan    @relation(fields: [sumdanId], references: [id])
+  sumdanId   String
 }
 
 model Berkas {
@@ -417,28 +415,33 @@ enum AccountType {
 }
 
 model CategoryOfAccount {
-  id           String              @id @default(uuid())
-  name         String
-  type         AccountType
-  status       Boolean             @default(true)
-  parentId     String?
-  Parent       CategoryOfAccount?  @relation("AccountHierarchy", fields: [parentId], references: [id])
-  Children     CategoryOfAccount[] @relation("AccountHierarchy")
-  JournalEntry JournalEntry[]
+  id             String              @id @default(uuid())
+  name           String
+  type           AccountType
+  status         Boolean             @default(true)
+  parentId       String?
+  Parent         CategoryOfAccount?  @relation("AccountHierarchy", fields: [parentId], references: [id])
+  Children       CategoryOfAccount[] @relation("AccountHierarchy")
+  JournalDetails JournalDetail[]
 }
 
 model JournalEntry {
   id          String   @id @default(uuid())
   date        DateTime
   description String?
-  amount      Decimal  @default(0) @db.Decimal(18, 2)
 
-  Sumdan              Sumdan?           @relation(fields: [sumdanId], references: [id])
-  Dropping            Dropping?         @relation(fields: [droppingId], references: [id])
+  JournalDetails JournalDetail[]
+}
+
+model JournalDetail {
+  id     String  @id @default(uuid())
+  debit  Decimal @default(0) @db.Decimal(18, 2)
+  credit Decimal @default(0) @db.Decimal(18, 2)
+
+  JournalEntry        JournalEntry      @relation(fields: [journalEntryId], references: [id])
   CategoryOfAccount   CategoryOfAccount @relation(fields: [categoryOfAccountId], references: [id])
   User                User?             @relation(fields: [userId], references: [id])
-  droppingId          String?
+  journalEntryId      String
   categoryOfAccountId String
-  sumdanId            String?
   userId              String?
 }

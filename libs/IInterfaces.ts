@@ -9,6 +9,7 @@ import {
   Dropping,
   Jaminan,
   JenisPembiayaan,
+  JournalDetail,
   JournalEntry,
   Pelunasan,
   ProdukPembiayaan,
@@ -119,10 +120,20 @@ export interface IAngsuran extends Angsuran {
   Dapem: IDapem;
 }
 
+export interface IJournalDetail extends JournalDetail {
+  JournalEntry: JournalEntry;
+  User: User | null;
+  CategoryOfAccount: CategoryOfAccount;
+}
+
+export interface IJournalEntry extends JournalEntry {
+  JournalDetail: IJournalDetail[];
+}
+
 export interface ICategoryOfAccount extends CategoryOfAccount {
   Children: CategoryOfAccount[];
   Parent: CategoryOfAccount | null;
-  JournalEntry: JournalEntry[];
+  JournalEntry: IJournalEntry[];
 }
 // End Models
 

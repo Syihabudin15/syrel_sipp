@@ -79,7 +79,7 @@ export const PerjanjianKredit = (record: IDapem) => {
         <div class="w-4">:</div>
         <div class="flex-1">${record.Debitur.address} KELURAHAN ${record.Debitur.ward} KECAMATAN ${record.Debitur.district} ${record.Debitur.city} ${record.Debitur.province} ${record.Debitur.pos_code}</div>
       </div>
-      <p>Dan untuk tindakan hukum ini telah mendapat persetujuan suami/isteri/ahliwarisnya :</p>
+      <p>Dan untuk tindakan hukum ini telah mendapat persetujuan suami/isteri/ahli warisnya :</p>
       <div class="flex gap-2">
         <div class="w-44">Nama</div>
         <div class="w-4">:</div>
@@ -190,37 +190,37 @@ export const PerjanjianKredit = (record: IDapem) => {
           <p class="w-4">a.</p>
           <p class="w-44">Administrasi</p>
           <p class="w-4">:</p>
-          <p class="flex-1">${IDRFormat(biayaAdm)}</p>
+          <p class="w-28 text-right">${IDRFormat(biayaAdm)}</p>
         </div>
         <div class="flex gap-2 ml-10">
           <p class="w-4">b.</p>
           <p class="w-44">Asuransi</p>
           <p class="w-4">:</p>
-          <p class="flex-1">${IDRFormat(biayaAsuransi)}</p>
+          <p class="w-28 text-right">${IDRFormat(biayaAsuransi)}</p>
         </div>
         <div class="flex gap-2 ml-10">
           <p class="w-4">c.</p>
           <p class="w-44">Pembukaan Tabungan</p>
           <p class="w-4">:</p>
-          <p class="flex-1">${IDRFormat(record.c_account)}</p>
+          <p class="w-28 text-right">${IDRFormat(record.c_account)}</p>
         </div>
         <div class="flex gap-2 ml-10">
           <p class="w-4">d.</p>
           <p class="w-44">Materai</p>
           <p class="w-4">:</p>
-          <p class="flex-1">${IDRFormat(record.c_stamp)}</p>
+          <p class="w-28 text-right">${IDRFormat(record.c_stamp)}</p>
         </div>
         <div class="flex gap-2 ml-10">
           <p class="w-4">e.</p>
           <p class="w-44">Biaya Lain-lain</p>
           <p class="w-4">:</p>
-          <p class="flex-1">${IDRFormat(record.c_gov + record.c_mutasi)}</p>
+          <p class="w-28 text-right">${IDRFormat(record.c_gov + record.c_mutasi)}</p>
         </div>
         <div class="flex gap-2 ml-10 font-bold">
           <p class="w-4"></p>
           <p class="w-44">Total Biaya</p>
           <p class="w-4">:</p>
-          <p class="flex-1 border-t border-dashed">${IDRFormat(biayaTotal)}</p>
+          <p class="w-28 text-right border-t border-dashed">${IDRFormat(biayaTotal)}</p>
         </div>
       </div>
     </div>
@@ -448,7 +448,7 @@ export const PerjanjianKredit = (record: IDapem) => {
       <p>KEADAAN MEMAKSA (FORCE MAJEURE)</p>
     </div>
 
-    <p>Terjadinya peristiwa yang diluar kekuasaan kemampuan PT. BPR Harta Mulia (Force Majeure atau Overmacht) antara lain keadaan yang diakibatkan bencana alam dan non bencana alam seperti keadaan krisis atau kemacetan likuiditas sebagai akibat dari perubahan kebijakan pemerintah dibidang moneter dan fiskal atau telah sesuai dengan unsur-unsur keadaan memaksa (Force Majeure) dan peraturan tentang keadaan memaksa (Force Majeure) yakni pasal 1244 dan pasal 1245 Kitab Undang-Undang Hukum Perdata (KUHP), dimana peraturan dimaksud tersebut terlebih dahulu harus diumumkan pemerintah (Regulator) secara resmi.</p>
+    <p>Terjadinya peristiwa yang diluar kekuasaan kemampuan ${record.ProdukPembiayaan.Sumdan.name} (Force Majeure atau Overmacht) antara lain keadaan yang diakibatkan bencana alam dan non bencana alam seperti keadaan krisis atau kemacetan likuiditas sebagai akibat dari perubahan kebijakan pemerintah dibidang moneter dan fiskal atau telah sesuai dengan unsur-unsur keadaan memaksa (Force Majeure) dan peraturan tentang keadaan memaksa (Force Majeure) yakni pasal 1244 dan pasal 1245 Kitab Undang-Undang Hukum Perdata (KUHP), dimana peraturan dimaksud tersebut terlebih dahulu harus diumumkan pemerintah (Regulator) secara resmi.</p>
   </div>
 
   <div class="my-8">
@@ -478,9 +478,9 @@ export const PerjanjianKredit = (record: IDapem) => {
   <div class="mt-15">
   <div class="flex justify-between gap-6 items-end">
     <div class="flex-1 text-center">
-      <p class="ml-8">${(record.Debitur.city || "KOTA BANDUNG").toLowerCase().replace("kota", "").replace("kabupaten", "").toUpperCase()}, ${moment(record.date_contract).format("DD-MM-YYYY")}</p>
+        <p >${(record.Debitur.city || "KOTA BANDUNG").toLowerCase().replace("kota", "").replace("kabupaten", "").toUpperCase()}, ${moment(record.date_contract).format("DD-MM-YYYY")}</p>
         <p class="font-bold">${record.ProdukPembiayaan.Sumdan.name}</p>
-        <div class="h-44">
+        <div class="h-28">
         </div>
         <div>
           <p class="w-full border-b">${process.env.NEXT_PUBLIC_APP_AKAD_NAME}</p>
@@ -489,7 +489,7 @@ export const PerjanjianKredit = (record: IDapem) => {
       </div>
       <div class="flex-1 text-center">
         <p class="font-bold">DEBITUR</p>
-        <div class="h-44 flex items-center justify-center opacity-50">
+        <div class="h-28 flex items-center justify-center opacity-50">
           <p >Materai 10.000</p>
         </div>
         <div>
@@ -499,11 +499,11 @@ export const PerjanjianKredit = (record: IDapem) => {
       </div>
       <div class="flex-1 text-center">
         <p class="font-bold">Menyetujui</p>
-        <div class="h-44">
+        <div class="h-28">
         </div>
         <div>
           <p class="w-full border-b">${record.aw_name}</p>
-          <p>SUAMI/ISTRI/AHLIWARIS</p>
+          <p>SUAMI/ISTRI/AHLI WARIS</p>
         </div>
       </div>
     </div>

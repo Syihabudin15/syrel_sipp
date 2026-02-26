@@ -50,12 +50,52 @@ export function GetMaxPlafond(
   return maxPlafond;
 }
 
+// export const GetAngsuran = (
+//   dapem:IDapem
+// ) => {
+//   if (dapem.margin_type === "FLAT") {
+//     const pokok = dapem.plafond / dapem.tenor;
+//     const mg = dapem.c_margin+dapem.c_margin_sumdan;
+//     const margin = (dapem.plafond * (mg / 100)) / 12;
+//     const angsuran = pokok + margin;
+//     return {
+//       pokok,
+//       margin,
+//       angsuran: round
+//         ? Math.round(angsuran / rounded) * rounded
+//         : Math.ceil(angsuran / rounded) * rounded,
+//     };
+//   } else if (type === "ANUITAS") {
+//     const r = bunga / 12 / 100;
+
+//     const angsuran =
+//       (plafond * (r * Math.pow(1 + r, tenor))) / (Math.pow(1 + r, tenor) - 1);
+//     const pokok = plafond / tenor;
+//     const margin = angsuran - pokok;
+
+//     return {
+//       angsuran: round
+//         ? Math.round(angsuran / rounded) * rounded
+//         : Math.ceil(angsuran / rounded) * rounded,
+//       pokok,
+//       margin,
+//     };
+//   } else {
+//     return {
+//       pokok: 0,
+//       margin: 0,
+//       angsuran: 0,
+//     };
+//   }
+// };
+
 export const GetAngsuran = (
   plafond: number,
   tenor: number,
   bunga: number,
   type: EMarginType,
   rounded: number,
+  round?: boolean,
 ) => {
   if (type === "FLAT") {
     const pokok = plafond / tenor;
@@ -64,7 +104,9 @@ export const GetAngsuran = (
     return {
       pokok,
       margin,
-      angsuran: Math.ceil(angsuran / rounded) * rounded,
+      angsuran: round
+        ? Math.round(angsuran / rounded) * rounded
+        : Math.ceil(angsuran / rounded) * rounded,
     };
   } else if (type === "ANUITAS") {
     const r = bunga / 12 / 100;
@@ -75,7 +117,9 @@ export const GetAngsuran = (
     const margin = angsuran - pokok;
 
     return {
-      angsuran: Math.ceil(angsuran / rounded) * rounded,
+      angsuran: round
+        ? Math.round(angsuran / rounded) * rounded
+        : Math.ceil(angsuran / rounded) * rounded,
       pokok,
       margin,
     };

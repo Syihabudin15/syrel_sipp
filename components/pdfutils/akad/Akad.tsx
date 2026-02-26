@@ -4,6 +4,12 @@ import { IDapem } from "@/libs/IInterfaces";
 import { JadwalAngsuran } from "./KartuAngsuran";
 import { PerjanjianKredit } from "./PerjanjianKredit";
 import { SPKDR } from "./SKPDR";
+import { Flagging } from "./Flagging";
+import { BuktiPencairan } from "./BuktiPencairan";
+import { Pemotongan } from "./Pemotongan";
+import { Kesanggupan } from "./Kesanggupan";
+import { PenyerahanJaminan } from "./PenyerahanJaminan";
+import { FormCeklist1 } from "./FormCeklist1";
 
 moment.locale("id");
 
@@ -72,10 +78,38 @@ const generateContractHtml = (record: IDapem) => {
       <div class="page text-justify" style="font-size: 12px;">
         ${PerjanjianKredit(record)}
       </div>
+
       <div class="page text-justify" style="font-size: 11px;">
         ${SPKDR(record)}
       </div>
-
+      <div class="page text-justify" style="font-size: 11px;">
+        ${Flagging(record)}
+      </div>
+      <div class="page text-justify" style="font-size: 11px;">
+        ${BuktiPencairan(record, "DEBITUR")}
+      </div>
+      <div class="page text-justify" style="font-size: 11px;">
+        ${BuktiPencairan(record, record.ProdukPembiayaan.Sumdan.name)}
+      </div>
+      <div class="page text-justify" style="font-size: 11px;">
+        ${Pemotongan(record)}
+      </div>
+      <div class="page text-justify" style="font-size: 11px;">
+        ${Kesanggupan(record, "DEBOTUR")}
+      </div>
+      <div class="page text-justify" style="font-size: 11px;">
+        ${Kesanggupan(record, record.ProdukPembiayaan.Sumdan.name)}
+      </div>
+      <div class="page text-justify" style="font-size: 11px;">
+        ${PenyerahanJaminan(record)}
+      </div>
+      <div class="page text-justify" style="font-size: 11px;">
+        ${PenyerahanJaminan(record)}
+      </div>
+      <div class="page text-justify" style="font-size: 11px;">
+        ${FormCeklist1(record)}
+      </div>
+      
     </body>
   </html>
   `;

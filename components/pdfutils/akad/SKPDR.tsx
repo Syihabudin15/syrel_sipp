@@ -58,10 +58,10 @@ export const SPKDR = (record: IDapem) => {
       <p class="flex-1">${record.Debitur.address}, KELURAHAN ${record.Debitur.ward} KECAMATAN ${record.Debitur.district}, ${record.Debitur.city} ${record.Debitur.province} ${record.Debitur.pos_code}</p>
     </div>
   </div>
-  <p class="mt-2">Yang untuk melakukan tindakan hukum ini telah mendapat persetujuan dari suami/istri/ahliwarisnya :</p>
+  <p class="mt-2">Yang untuk melakukan tindakan hukum ini telah mendapat persetujuan dari suami/istri/ahli warisnya :</p>
   <div class="ml-4">
     <div class="flex gap-2">
-      <p class="w-52">Nama Ahliwaris</p>
+      <p class="w-52">Nama Ahli waris</p>
       <p class="w-4">:</p>
       <p class="flex-1">${record.aw_name}</p>
     </div>
@@ -107,7 +107,7 @@ export const SPKDR = (record: IDapem) => {
 
   <div class="flex gap-10 justify-around mt-5 items-end">
     <div class="flex-1 text-center">
-      <p class="ml-8">${(record.Debitur.city || "KOTA BANDUNG").toLowerCase().replace("kota", "").replace("kabupaten", "").toUpperCase()}, ${moment(record.date_contract).format("DD-MM-YYYY")}</p>
+      <p>${(record.Debitur.city || "KOTA BANDUNG").toLowerCase().replace("kota", "").replace("kabupaten", "").toUpperCase()}, ${moment(record.date_contract).format("DD-MM-YYYY")}</p>
       <p>Megetahui</p>
       <div class="h-28"></div>
       <p class="border-b">${process.env.NEXT_PUBLIC_APP_AKAD_NAME}</p>

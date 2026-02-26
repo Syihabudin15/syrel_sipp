@@ -3,9 +3,11 @@
 import { FormInput, ViewFiles } from "@/components";
 import { useUser } from "@/components/UserContext";
 import {
+  ExportToExcel,
   FilterData,
   GetBerkasStatusTag,
   GetDroppingStatusTag,
+  MappingToExcelDapem,
 } from "@/components/utils/CompUtils";
 import { DetailDapem } from "@/components/utils/LayoutUtils";
 import {
@@ -31,6 +33,7 @@ import {
   FolderOutlined,
   PayCircleOutlined,
   PlusCircleOutlined,
+  PrinterOutlined,
   SwapOutlined,
 } from "@ant-design/icons";
 import { EDapemStatus, JenisPembiayaan, Sumdan } from "@prisma/client";
@@ -838,7 +841,25 @@ export default function Page() {
             }
           />
         </div>
-        <div style={{ width: 170 }}>
+        <div className="flex gap-2">
+          <Button
+            icon={<PrinterOutlined />}
+            size="small"
+            type="primary"
+            onClick={() =>
+              ExportToExcel(
+                [
+                  {
+                    sheetname: "alldata",
+                    data: MappingToExcelDapem(pageProps.data),
+                  },
+                ],
+                "nominatif",
+              )
+            }
+          >
+            Excel
+          </Button>
           <Input.Search
             size="small"
             style={{ width: 170 }}

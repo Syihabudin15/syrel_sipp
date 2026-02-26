@@ -11,7 +11,6 @@ import {
 import {
   IActionTable,
   IDapem,
-  IDesc,
   IPageProps,
   IPelunasan,
   IViewFiles,

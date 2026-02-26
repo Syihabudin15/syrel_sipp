@@ -9,6 +9,7 @@ import {
   FilterData,
   GetDroppingStatusTag,
   GetStatusTag,
+  MappingToExcelDapem,
 } from "@/components/utils/CompUtils";
 import { DetailDapem } from "@/components/utils/LayoutUtils";
 import {
@@ -613,23 +614,32 @@ export default function Page() {
             onClick={() =>
               ExportToExcel(
                 [
-                  { sheetname: "alldata", data: pageProps.data },
+                  {
+                    sheetname: "alldata",
+                    data: MappingToExcelDapem(pageProps.data),
+                  },
                   {
                     sheetname: "antri",
-                    data: pageProps.data.filter((d) =>
-                      ["DRAFT", "PENDING"].includes(d.dropping_status),
+                    data: MappingToExcelDapem(
+                      pageProps.data.filter((d) =>
+                        ["DRAFT", "PENDING"].includes(d.dropping_status),
+                      ),
                     ),
                   },
                   {
                     sheetname: "final",
-                    data: pageProps.data.filter((d) =>
-                      ["PROCCESS", "APPROVED"].includes(d.dropping_status),
+                    data: MappingToExcelDapem(
+                      pageProps.data.filter((d) =>
+                        ["PROCCESS", "APPROVED"].includes(d.dropping_status),
+                      ),
                     ),
                   },
                   {
                     sheetname: "dropping",
-                    data: pageProps.data.filter(
-                      (d) => d.dropping_status === "APPROVED",
+                    data: MappingToExcelDapem(
+                      pageProps.data.filter(
+                        (d) => d.dropping_status === "APPROVED",
+                      ),
                     ),
                   },
                 ],
@@ -1005,7 +1015,7 @@ const PrintContractSubmission = ({
                 onClick={() =>
                   setTemp({
                     ...temp,
-                    no_contract: `${data.id}/PKPP/${GetRoman(new Date(temp.date_contract || new Date()).getMonth() + 1)}/${moment(temp.date_contract || new Date()).format("YYYY")}`,
+                    no_contract: `${data.id}/SJM-PKPP/${GetRoman(new Date(temp.date_contract || new Date()).getMonth() + 1)}/${moment(temp.date_contract || new Date()).format("YYYY")}`,
                   })
                 }
               ></Button>
