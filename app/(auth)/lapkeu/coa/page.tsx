@@ -1,6 +1,7 @@
 "use client";
 
 import { FormInput } from "@/components";
+import { TypeAccount } from "@/components/utils/CompUtils";
 import {
   IActionTable,
   ICategoryOfAccount,
@@ -72,19 +73,19 @@ export default function Page() {
   }, [pageProps.page, pageProps.limit, pageProps.search, pageProps.type]);
 
   const columns: TableProps<ICategoryOfAccount>["columns"] = [
-    // {
-    //   title: "ID",
-    //   dataIndex: "id",
-    //   key: "id",
-    //   render(value, record, index) {
-    //     return (
-    //       <div>
-    //         <div>{(pageProps.page - 1) * pageProps.limit + index + 1}</div>
-    //         <div className="opacity-70 text-xs italic">{record.id}</div>
-    //       </div>
-    //     );
-    //   },
-    // },
+    {
+      title: "ID",
+      dataIndex: "id",
+      key: "id",
+      render(value, record, index) {
+        return (
+          <div>
+            <div>{(pageProps.page - 1) * pageProps.limit + index + 1}</div>
+            <div className="opacity-70 text-xs italic">{record.id}</div>
+          </div>
+        );
+      },
+    },
     {
       title: "Account",
       dataIndex: "name",
@@ -92,7 +93,21 @@ export default function Page() {
       render(value, record, index) {
         return (
           <div>
-            <span className="opacity-70">({record.id})</span>
+            <span className="opacity-70">
+              (
+              {record.type === "ASSET"
+                ? "D"
+                : record.type === "KEWAJIBAN"
+                  ? "K"
+                  : record.type === "PENDAPATAN"
+                    ? "K"
+                    : record.type === "MODAL"
+                      ? "K"
+                      : record.type === "BEBAN"
+                        ? "D"
+                        : ""}
+              -{record.id})
+            </span>
             {record.parentId && (
               <span className="opacity-70">({record.Parent?.name})</span>
             )}{" "}
@@ -196,7 +211,19 @@ export default function Page() {
         rowKey={"id"}
         bordered
         scroll={{ x: "max-content", y: "60vh" }}
-        pagination={false}
+        pagination={{
+          current: pageProps.page,
+          pageSize: pageProps.limit,
+          total: pageProps.total,
+          onChange: (page, pageSize) => {
+            setPageProps((prev) => ({
+              ...prev,
+              page,
+              limit: pageSize,
+            }));
+          },
+          pageSizeOptions: [50, 100, 500, 1000],
+        }}
       />
 
       <UpsertData
@@ -286,11 +313,11 @@ const UpsertData = ({
               setData({ ...data, type: e as AccountType }),
             type: "select",
             options: [
-              { label: "ASSET", value: "ASSET" },
-              { label: "KEWAJIBAN", value: "KEWAJIBAN" },
-              { label: "MODAL", value: "MODAL" },
-              { label: "PENDAPATAN", value: "PENDAPATAN" },
-              { label: "BEBAN", value: "BEBAN" },
+              { label: "D - ASSET", value: "ASSET" },
+              { label: "K - KEWAJIBAN", value: "KEWAJIBAN" },
+              { label: "K - MODAL", value: "MODAL" },
+              { label: "K - PENDAPATAN", value: "PENDAPATAN" },
+              { label: "D - BEBAN", value: "BEBAN" },
             ],
           }}
         />
@@ -300,7 +327,10 @@ const UpsertData = ({
             value: data.parentId,
             onChange: (e: string) => setData({ ...data, parentId: e }),
             type: "select",
-            options: lists.map((d) => ({ label: d.name, value: d.id })),
+            options: lists.map((d) => ({
+              label: `(${TypeAccount(d)}-${d.id}) ${d.name}`,
+              value: d.id,
+            })),
           }}
         />
       </div>

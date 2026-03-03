@@ -1,7 +1,12 @@
 "use client";
 
 import { IDapem, IDesc, IExportData } from "@/libs/IInterfaces";
-import { EDapemStatus, EDocStatus, ESubmissionStatus } from "@prisma/client";
+import {
+  CategoryOfAccount,
+  EDapemStatus,
+  EDocStatus,
+  ESubmissionStatus,
+} from "@prisma/client";
 import { Button, Divider, Drawer, Modal, Tag } from "antd";
 import { HookAPI } from "antd/es/modal/useModal";
 import { useState } from "react";
@@ -334,4 +339,21 @@ export const MappingToExcelDapem = (data: IDapem[]) => {
       d.rounded,
     ).angsuran,
   }));
+};
+
+export const TypeAccount = (account: CategoryOfAccount) => {
+  switch (account.type) {
+    case "ASSET":
+      return "D";
+    case "KEWAJIBAN":
+      return "K";
+    case "MODAL":
+      return "K";
+    case "PENDAPATAN":
+      return "K";
+    case "BEBAN":
+      return "D";
+    default:
+      return "D";
+  }
 };

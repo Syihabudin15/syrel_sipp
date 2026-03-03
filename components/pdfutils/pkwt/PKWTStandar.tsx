@@ -352,7 +352,7 @@ const generatePKWTHtml = (record: UserType) => {
 
 
       <div class="mt-16">
-        <div class="ml-24">Bandung, ${moment(record.start_pkwt).format("DD MMMM YYYY")}</div>
+        <div class="ml-24">${process.env.NEXT_PUBLIC_APP_COMPANY_CITY}, ${moment(record.start_pkwt).format("DD MMMM YYYY")}</div>
         <div class="flex justify-around font-bold">
           <div class="text-center">
             <p>PIHAK PERTAMA</p>

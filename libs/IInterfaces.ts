@@ -131,9 +131,9 @@ export interface IJournalEntry extends JournalEntry {
 }
 
 export interface ICategoryOfAccount extends CategoryOfAccount {
-  Children: CategoryOfAccount[];
-  Parent: CategoryOfAccount | null;
-  JournalEntry: IJournalEntry[];
+  Children: ICategoryOfAccount[];
+  Parent: ICategoryOfAccount | null;
+  JournalDetail: IJournalDetail[];
 }
 // End Models
 

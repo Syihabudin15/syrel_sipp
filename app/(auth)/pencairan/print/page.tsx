@@ -220,7 +220,7 @@ export default function Page() {
             <p className="font-bold">List Account : </p>
             <div className="italic text-xs">
               {selecteds.map((d) => (
-                <span>d.Debitur.fullname</span>
+                <span key={d.id}>{d.Debitur.fullname}</span>
               ))}
             </div>
           </div>

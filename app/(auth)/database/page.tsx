@@ -10,7 +10,16 @@ import {
   DollarOutlined,
   HistoryOutlined,
 } from "@ant-design/icons";
-import { Card, Input, Select, Table, TableProps, Tag } from "antd";
+import {
+  Card,
+  Input,
+  Progress,
+  Select,
+  Table,
+  TableProps,
+  Tag,
+  Tooltip,
+} from "antd";
 import moment from "moment";
 import { useEffect, useState } from "react";
 
@@ -311,25 +320,46 @@ const columnDapem: TableProps<IDapem>["columns"] = [
     },
   },
   {
-    title: "Status Pembiayaan",
+    title: "Status",
     dataIndex: "status_final",
     key: "status_final",
-    width: 200,
     render: (_, record, i) => (
       <div className="flex gap-1">
         {GetDroppingStatusTag(record.dropping_status)}
-        <div className="text-xs">
-          {record.Dropping && record.Dropping.process_at
-            ? moment(record.Dropping.process_at).format("DD-MM-YYYY HH:mm")
-            : ""}
-        </div>
       </div>
     ),
   },
   {
-    title: "Created",
+    title: "Progres Tagihan",
+    dataIndex: "progres",
+    key: "progres",
+    width: 150,
+    render(value, record, index) {
+      const filter = record.Angsuran.filter((f) => f.date_paid !== null);
+      return (
+        <Tooltip title={`${filter.length} / ${record.tenor}`}>
+          <Progress
+            percent={parseFloat(
+              String(((filter.length / record.tenor) * 100).toFixed(2)),
+            )}
+          />
+        </Tooltip>
+      );
+    },
+  },
+  {
+    title: "Akad",
     dataIndex: "created_at",
     key: "created_at",
-    render: (date) => moment(date).format("DD-MM-YYYY"),
+    render(value, record, index) {
+      return (
+        <div>
+          <div>{record.no_contract}</div>
+          <div className="opacity-80 italic text-xs">
+            {moment(record.date_contract).format("DD/MM/YYYY")}
+          </div>
+        </div>
+      );
+    },
   },
 ];

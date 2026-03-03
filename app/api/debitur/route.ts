@@ -70,6 +70,7 @@ export const GET = async (request: NextRequest) => {
           ProdukPembiayaan: { include: { Sumdan: true } },
           JenisPembiayaan: true,
           AO: { include: { Cabang: { include: { Area: true } } } },
+          Angsuran: true,
         },
       },
     },

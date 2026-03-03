@@ -803,6 +803,16 @@ export const DetailDapem = ({
             />
             <FormInput
               data={{
+                label: "Kantor Bayar",
+                mode: "vertical",
+                type: "textarea",
+                class: "flex-1",
+                disabled: true,
+                value: `${data.mutasi_from} ${data.mutasi_to ? "-> " + data.mutasi_to : ""}`,
+              }}
+            />
+            <FormInput
+              data={{
                 label: "Produk Pembiayaan",
                 mode: "vertical",
                 type: "text",
@@ -811,16 +821,7 @@ export const DetailDapem = ({
                 value: `${data.ProdukPembiayaan.name} (${data.ProdukPembiayaan.Sumdan.code})`,
               }}
             />
-            <FormInput
-              data={{
-                label: "Kantor Bayar",
-                mode: "vertical",
-                type: "text",
-                class: "flex-1",
-                disabled: true,
-                value: `${data.mutasi_from} ${data.mutasi_to ? "-> " + data.mutasi_to : ""}`,
-              }}
-            />
+
             <FormInput
               data={{
                 label: "Instansi Takeover",
@@ -915,7 +916,7 @@ export const DetailDapem = ({
                 <div className="w-[40%]">Debt Service Ratio</div>
                 <div className="w-[5%]">:</div>
                 <div className="flex-1 justify-end text-right">
-                  {(angsRound / data.Debitur.salary) * 100}% /{" "}
+                  {((angsRound / data.Debitur.salary) * 100).toFixed(2)}% /{" "}
                   {data.ProdukPembiayaan.Sumdan.dsr}%
                 </div>
               </div>

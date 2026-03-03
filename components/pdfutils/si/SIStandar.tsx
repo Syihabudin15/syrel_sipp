@@ -58,7 +58,7 @@ const generateSI = (record: IDropping) => {
     <body class="bg-white text-gray-800 leading-relaxed p-4 max-w-200">
 
     <div class="page" style="font-size: 12px;">
-      ${Header("Standing Instruction", record.id, undefined, process.env.NEXT_PUBLIC_APP_LOGO, record.Sumdan.logo)}
+      ${Header("PERMOHONAN DROPPING DANA PENCAIRAN", record.id, undefined, process.env.NEXT_PUBLIC_APP_LOGO, record.Sumdan.logo)}
 
       <div class="my-4">
         <div class="flex gap-3">
@@ -74,7 +74,7 @@ const generateSI = (record: IDropping) => {
         <div class="flex gap-3">
           <p class="w-44">Perihal</p>
           <p class="w-4">:</p>
-          <p class="flex-1">Standing Instruction Dropping Dana Pembiayaan Pensiun</p>
+          <p class="flex-1">Permohonan Dropping Dana Pencairan Pembiayaan Pensiun</p>
         </div>
       </div>
 
@@ -84,7 +84,7 @@ const generateSI = (record: IDropping) => {
         <p>Di tempat</p>
       </div>
       <div class="mt-2">
-        <p>Sehubungan dengan telah disetujuinya pembiayaan pensiun oleh Komite Bank, bersama ini kami menyampaikan Standing Instruction (Instruksi Tetap) kepada ${record.Sumdan.name} untuk melakukan dropping dana pembiayaan dengan rincian sebagai berikut :</p>
+        <p>Sehubungan dengan telah disetujuinya pembiayaan pensiun oleh Komite Bank, bersama ini kami menyampaikan permohonan kepada ${record.Sumdan.name} untuk melakukan dropping dana pencairan pembiayaan dengan rincian sebagai berikut :</p>
         
         <div class="mt-4 flex gap-2 ml-3">
           <p class="w-44">Jumlah Debitur</p>
@@ -128,8 +128,8 @@ const generateSI = (record: IDropping) => {
         <div class="w-96 text-center">
           <p>${process.env.NEXT_PUBLIC_APP_COMPANY_CITY}, ${moment(record.created_at).format("DD-MM-YYYY")}</p>
           <p>${process.env.NEXT_PUBLIC_APP_COMPANY_NAME?.toUpperCase()}</p>
-          <div class="h-40"></div>
-          <p class="undeline">${process.env.NEXT_PUBLIC_APP_SI_NAME}</p>
+          <div class="h-28"></div>
+          <p class="border-b">${process.env.NEXT_PUBLIC_APP_SI_NAME}</p>
           <p>${process.env.NEXT_PUBLIC_APP_SI_POSITION}</p>
         </div>
       </div>
@@ -137,7 +137,7 @@ const generateSI = (record: IDropping) => {
     </div>
 
     <div class="page" style="font-size: 12px;">
-      ${Header("Lampiran Standing Instruction", record.id, undefined, process.env.NEXT_PUBLIC_APP_LOGO, record.Sumdan.logo)}
+      ${Header("LAMPIRAN PERMOHONAN DROPPING", record.id, undefined, process.env.NEXT_PUBLIC_APP_LOGO, record.Sumdan.logo)}
 
 
       <div class="mt-20">
@@ -202,8 +202,8 @@ const generateSI = (record: IDropping) => {
         <div class="w-96 text-center">
           <p>${process.env.NEXT_PUBLIC_APP_COMPANY_CITY}, ${moment(record.created_at).format("DD-MM-YYYY")}</p>
           <p>${process.env.NEXT_PUBLIC_APP_COMPANY_NAME?.toUpperCase()}</p>
-          <div class="h-40"></div>
-          <p class="undeline">${process.env.NEXT_PUBLIC_APP_SI_NAME}</p>
+          <div class="h-28"></div>
+          <p class="border-b">${process.env.NEXT_PUBLIC_APP_SI_NAME}</p>
           <p>${process.env.NEXT_PUBLIC_APP_SI_POSITION}</p>
         </div>
       </div>

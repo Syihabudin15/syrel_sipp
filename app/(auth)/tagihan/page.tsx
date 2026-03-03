@@ -204,9 +204,9 @@ export default function Page() {
         );
         return (
           <div className="flex flex-col gap-1">
-            <div>
-              <Tag color={"blue"}>{IDRFormat(angs)}</Tag>
+            <div className="flex gap-1">
               <Tag color={"blue"}>{IDRFormat(angssumdan)}</Tag>
+              <Tag color={"blue"}>{IDRFormat(angs)}</Tag>
             </div>
             <Tag color={"blue"} style={{ marginLeft: 2 }}>
               Ke {find ? find.counter : 0} |{" "}
@@ -451,6 +451,30 @@ export default function Page() {
           pageSizeOptions: [50, 100, 500, 1000],
         }}
         summary={(pageData) => {
+          const angs = pageData.reduce(
+            (acc, curr) =>
+              acc +
+              GetAngsuran(
+                curr.plafond,
+                curr.tenor,
+                curr.c_margin + curr.c_margin_sumdan,
+                curr.margin_type,
+                curr.rounded,
+              ).angsuran,
+            0,
+          );
+          const angsSumdan = pageData.reduce(
+            (acc, curr) =>
+              acc +
+              GetAngsuran(
+                curr.plafond,
+                curr.tenor,
+                curr.c_margin_sumdan,
+                curr.margin_type,
+                curr.rounded,
+              ).angsuran,
+            0,
+          );
           return (
             <Table.Summary.Row className="text-xs bg-blue-400">
               <Table.Summary.Cell index={0} colSpan={2} className="text-center">
@@ -462,6 +486,13 @@ export default function Page() {
                     pageData.reduce((acc, item) => acc + item.plafond, 0),
                   )}{" "}
                 </b>
+              </Table.Summary.Cell>
+              <Table.Summary.Cell
+                index={4}
+                className="text-center"
+              ></Table.Summary.Cell>
+              <Table.Summary.Cell index={5} className="text-center font-bold">
+                {IDRFormat(angsSumdan)} | {IDRFormat(angs)}
               </Table.Summary.Cell>
             </Table.Summary.Row>
           );
@@ -648,22 +679,15 @@ const CreatePelunasan = ({
 }) => {
   const [data, setData] = useState<IPelunasan>({
     id: "",
-    amount:
-      rootrecord.Angsuran.filter((a) => a.date_paid !== null).length <= 1
-        ? 0
-        : rootrecord.Angsuran.filter((a) => a.date_paid === null).reduce(
-            (acc, curr) => acc + curr.principal,
-            0,
-          ),
+    amount: rootrecord.Angsuran.filter((a) => a.date_paid !== null).sort(
+      (a, b) => b.counter - a.counter,
+    )[0].remaining,
     amount_sumdan: 0,
     penalty:
-      rootrecord.Angsuran.filter((a) => a.date_paid !== null).length <= 1
-        ? 0
-        : rootrecord.Angsuran.filter((a) => a.date_paid === null).reduce(
-            (acc, curr) => acc + curr.principal,
-            0,
-          ) *
-          (5 / 100),
+      rootrecord.Angsuran.filter((a) => a.date_paid !== null).sort(
+        (a, b) => b.counter - a.counter,
+      )[0].remaining *
+      (5 / 100),
     type: "JATUHTEMPO",
     desc: "Permohonan pelunasan karna sudah jatuh tempo lunas",
     desc_sumdan: "",
@@ -807,7 +831,7 @@ const CreatePelunasan = ({
                 </p>
               ))}
         </div>
-        <div className="flex-1 w-full">
+        <div className="flex-1">
           <p className="my-2 font-bold text-lg">Table Angsuran</p>
           <Table
             columns={columnsangsuran}
@@ -818,6 +842,7 @@ const CreatePelunasan = ({
             bordered
             scroll={{ x: "max-content", y: "50vh" }}
             pagination={{ pageSize: 12 }}
+            className="w-full"
           />
         </div>
       </div>
@@ -900,7 +925,7 @@ const columnsangsuran: TableProps<Angsuran>["columns"] = [
     title: "Ke",
     dataIndex: "counter",
     key: "counter",
-    width: 50,
+    width: 70,
   },
   {
     title: "Jadwal Bayar",

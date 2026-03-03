@@ -140,8 +140,8 @@ const generateSD = (record: IDocument) => {
         <div class="w-96 text-center">
           <p>${process.env.NEXT_PUBLIC_APP_COMPANY_CITY}, ${moment(record.created_at).format("DD-MM-YYYY")}</p>
           <p>${process.env.NEXT_PUBLIC_APP_COMPANY_NAME?.toUpperCase()}</p>
-          <div class="h-40"></div>
-          <p class="undeline">${process.env.NEXT_PUBLIC_APP_PB_NAME}</p>
+          <div class="h-28"></div>
+          <p class="border-b">${process.env.NEXT_PUBLIC_APP_PB_NAME}</p>
           <p>${process.env.NEXT_PUBLIC_APP_PB_POSITION}</p>
         </div>
       </div>

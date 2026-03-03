@@ -94,7 +94,7 @@ export default function ILayout({ children }: { children: React.ReactNode }) {
         hidden={window && window.innerWidth < 600}
       >
         <div
-          className="flex gap-3 bg-linear-to-br from-green-500 to-gray-500 rounded p-2 items-center"
+          className="flex gap-3 bg-linear-to-br from-green-500 to-gray-500 rounded p-2"
           style={{
             margin: 3,
             color: "rgba(255, 255, 255, 0.85)",

@@ -1,6 +1,7 @@
 "use client";
 
 import { FormInput, ViewFiles } from "@/components";
+import { printPelunasan } from "@/components/pdfutils/etc/printPelunasan";
 import { useUser } from "@/components/UserContext";
 import { FilterData } from "@/components/utils/CompUtils";
 import {
@@ -202,15 +203,15 @@ export default function Page() {
             <Tag color={"blue"} style={{ marginLeft: 2 }}>
               Ke{" "}
               {
-                record.Dapem.Angsuran.filter((d) => d.date_paid === null).sort(
-                  (a, b) => a.counter - b.counter,
+                record.Dapem.Angsuran.filter((d) => d.date_paid !== null).sort(
+                  (a, b) => b.counter - a.counter,
                 )[0].counter
               }{" "}
               |
               {IDRFormat(
-                record.Dapem.Angsuran.filter(
-                  (a) => a.date_paid === null,
-                ).reduce((acc, curr) => acc + curr.principal, 0),
+                record.Dapem.Angsuran.filter((a) => a.date_paid !== null).sort(
+                  (a, b) => b.counter - a.counter,
+                )[0].remaining,
               )}
             </Tag>
           </div>
@@ -318,7 +319,7 @@ export default function Page() {
             </Tag>
             <div className="italic opacity-70 text-xs">
               <div>Pokok: {IDRFormat(record.amount)}</div>
-              <div>Mitra: {IDRFormat(record.penalty)}</div>
+              <div>Penalty: {IDRFormat(record.penalty)}</div>
             </div>
           </div>
         );
@@ -363,6 +364,7 @@ export default function Page() {
               size="small"
               type="primary"
               icon={<PrinterOutlined />}
+              onClick={() => printPelunasan(record)}
             ></Button>
             <Tooltip title={"Berkas Pelunasan"}>
               <Button
@@ -479,6 +481,22 @@ export default function Page() {
                     />
                   </div>
                 )}
+                <div className="my-2">
+                  <p>Tipe Pelunasan : </p>
+                  <Select
+                    size="small"
+                    placeholder="Pilih tipe..."
+                    options={[
+                      { label: "JATUH TEMPO", value: "JATUHTEMPO" },
+                      { label: "MENINGGAL", value: "MENINGGAL" },
+                      { label: "TOPUP", value: "TOPUP" },
+                      { label: "LEPAS", value: "LEPAS" },
+                    ]}
+                    onChange={(e) => setPageProps({ ...pageProps, type: e })}
+                    allowClear
+                    style={{ width: "100%" }}
+                  />
+                </div>
                 <div className="my-2">
                   <p>Status Pelunasan : </p>
                   <Select

@@ -146,10 +146,9 @@ export default function Page() {
                 .reduce(
                   (acc, curr) =>
                     acc +
-                    curr.Angsuran.reduce(
-                      (acca, curra) => acca + curra.principal,
-                      0,
-                    ),
+                    curr.Angsuran.filter((a) => a.date_paid !== null).sort(
+                      (a, b) => b.counter - a.counter,
+                    )[0]?.remaining,
                   0,
                 ),
             )}`}
@@ -161,10 +160,14 @@ export default function Page() {
             name="Pending Takeover"
             all={`Rp. ${IDRFormat(
               data.droppingall
-                .filter((f) => f.takeover_status !== "APPROVED")
+                .filter(
+                  (f) =>
+                    f.takeover_status !== "APPROVED" &&
+                    f.dropping_status === "APPROVED",
+                )
                 .reduce((acc, curr) => acc + curr.c_takeover, 0),
             )}`}
-            month={`${data.droppingall.filter((d) => d.takeover_status !== "APPROVED").length} NOA`}
+            month={`${data.droppingall.filter((d) => d.takeover_status !== "APPROVED" && d.dropping_status === "APPROVED").length} NOA`}
             color="text-red-500"
             icon={<PayCircleOutlined />}
           />
@@ -172,10 +175,26 @@ export default function Page() {
             name="Pending Mutasi & Flagging"
             all={`Rp. ${IDRFormat(
               data.droppingall
-                .filter((f) => f.mutasi_status !== "APPROVED")
+                .filter(
+                  (f) =>
+                    f.mutasi_status !== "APPROVED" &&
+                    f.dropping_status === "APPROVED",
+                )
                 .reduce((acc, curr) => acc + curr.c_mutasi, 0),
             )}`}
-            month={`Mutasi ${data.droppingall.filter((d) => d.mutasi_status !== "APPROVED").length} | Flagging ${data.droppingall.filter((d) => d.flagging_status !== "APPROVED").length}`}
+            month={`Mutasi ${
+              data.droppingall.filter(
+                (d) =>
+                  d.mutasi_status !== "APPROVED" &&
+                  d.dropping_status === "APPROVED",
+              ).length
+            } | Flagging ${
+              data.droppingall.filter(
+                (d) =>
+                  d.flagging_status !== "APPROVED" &&
+                  d.dropping_status === "APPROVED",
+              ).length
+            }`}
             color="text-red-500"
             icon={<SwapOutlined />}
           />
@@ -184,7 +203,9 @@ export default function Page() {
             all={`Rp. ${IDRFormat(
               (() => {
                 const dataTb = data.droppingall.filter(
-                  (d) => d.cash_status !== "APPROVED",
+                  (d) =>
+                    d.cash_status !== "APPROVED" &&
+                    d.dropping_status === "APPROVED",
                 );
                 const totalTB = dataTb.reduce((acc, curr) => {
                   const angs = GetAngsuran(
@@ -215,14 +236,20 @@ export default function Page() {
                 return totalTB;
               })(),
             )}`}
-            month={`${data.droppingall.filter((d) => d.cash_status !== "APPROVED").length} NOA`}
+            month={`${
+              data.droppingall.filter(
+                (d) =>
+                  d.cash_status !== "APPROVED" &&
+                  d.dropping_status === "APPROVED",
+              ).length
+            } NOA`}
             color="text-red-500"
             icon={<KeyOutlined />}
           />
           <StaticticItem
             name="Pending Berkas & Jaminan"
-            all={`Jaminan ${data.droppingall.filter((d) => d.guarantee_status !== "MITRA").length} NOA`}
-            month={`Berkas ${data.droppingall.filter((d) => d.document_status !== "MITRA").length} NOA`}
+            all={`Jaminan ${data.droppingall.filter((d) => d.guarantee_status !== "MITRA" && d.dropping_status === "APPROVED").length} NOA`}
+            month={`Berkas ${data.droppingall.filter((d) => d.document_status !== "MITRA" && d.dropping_status === "APPROVED").length} NOA`}
             color="text-red-500"
             icon={<FolderOpenOutlined />}
           />

@@ -55,7 +55,7 @@ export const GET = async (request: NextRequest) => {
       }),
       ...(dropping_status
         ? dropping_status === "final"
-          ? { dropping_status: { in: ["APPROVED", "PROCCESS"] } }
+          ? { dropping_status: { in: ["APPROVED", "PROCCESS", "PAID_OFF"] } }
           : {
               dropping_status: dropping_status as EDapemStatus,
             }

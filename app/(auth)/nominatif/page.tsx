@@ -587,24 +587,29 @@ export default function Page() {
       },
     },
     {
-      title: "Mutasi & Pelunasan",
+      title: "Mutasi & Takeover",
       dataIndex: "produk",
       key: "produk",
-      width: 250,
+      width: 350,
       render(value, record, index) {
         return (
           <div>
             {record.JenisPembiayaan.status_mutasi && (
-              <div>
-                <SwapOutlined /> <Tag color={"red"}>{record.mutasi_from}</Tag>{" "}
-                <ArrowRightOutlined style={{ fontSize: 10 }} />{" "}
-                <Tag color={"blue"}>{record.mutasi_to}</Tag>
+              <div style={{ fontSize: 9 }}>
+                <SwapOutlined />{" "}
+                <Tag style={{ fontSize: 9 }} color={"red"}>
+                  {record.mutasi_from}
+                </Tag>{" "}
+                <ArrowRightOutlined style={{ fontSize: 9 }} />{" "}
+                <Tag style={{ fontSize: 9 }} color={"blue"}>
+                  {record.mutasi_to}
+                </Tag>
               </div>
             )}
             {record.JenisPembiayaan.status_takeover && (
-              <div>
+              <div style={{ fontSize: 9 }}>
                 <PayCircleOutlined />{" "}
-                <Tag color={"blue"}>
+                <Tag color={"blue"} style={{ fontSize: 9 }}>
                   {record.takeover_from} (
                   {moment(record.takeover_date).format("DD/MM/YYYY")})
                 </Tag>
@@ -615,11 +620,22 @@ export default function Page() {
       },
     },
     {
-      title: "Dropping date",
-      dataIndex: "created_at",
-      key: "created_at",
-      render: (date, record) =>
-        moment(record.Dropping?.process_at).format("DD-MM-YYYY HH:mm"),
+      title: "Status Dropping",
+      dataIndex: "dropping_status",
+      key: "dropping_status",
+      width: 180,
+      render: (_, record, i) => {
+        return (
+          <div className="flex gap-1">
+            {GetDroppingStatusTag(record.dropping_status)}
+            {record.Dropping && record.Dropping.process_at && (
+              <div className="text-xs">
+                {moment(record.Dropping.process_at).format("DD/MM/YYYY HH:mm")}
+              </div>
+            )}
+          </div>
+        );
+      },
     },
     {
       title: "Progress",
@@ -635,6 +651,24 @@ export default function Page() {
         if (record.document_status === "MITRA") percent += 10;
         if (record.guarantee_status === "MITRA") percent += 10;
         return <Progress percent={percent} />;
+      },
+    },
+    {
+      title: "Progres Tagihan",
+      dataIndex: "progres",
+      key: "progres",
+      width: 150,
+      render(value, record, index) {
+        const filter = record.Angsuran.filter((f) => f.date_paid !== null);
+        return (
+          <Tooltip title={`${filter.length} / ${record.tenor}`}>
+            <Progress
+              percent={parseFloat(
+                String(((filter.length / record.tenor) * 100).toFixed(2)),
+              )}
+            />
+          </Tooltip>
+        );
       },
     },
     {

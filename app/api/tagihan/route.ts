@@ -25,7 +25,7 @@ export const GET = async (req: NextRequest) => {
   const data = await prisma.dapem.findMany({
     where: {
       status: true,
-      dropping_status: { in: ["APPROVED", "PAID_OFF"] },
+      dropping_status: "APPROVED",
       ...(search && {
         OR: [
           { id: { contains: search } },
@@ -99,7 +99,7 @@ export const GET = async (req: NextRequest) => {
   const total = await prisma.dapem.count({
     where: {
       status: true,
-      dropping_status: { in: ["APPROVED", "PAID_OFF"] },
+      dropping_status: "APPROVED",
       ...(search && {
         OR: [
           { id: { contains: search } },
